@@ -220,7 +220,7 @@ checks.epilogueDialog = await visible('dialog');
 await page.click('#dialog'); await wait(250);   // epilogue -> overlay
 checks.winOverlay = await page.evaluate(() => {
   const o = document.getElementById('overlay');
-  return !o.classList.contains('hidden') && document.getElementById('ovTitle').textContent.includes('REFORGED');
+  return !o.classList.contains('hidden') && document.getElementById('ovTitle').textContent.includes('CLEAN');
 });
 
 // New Game+ from the win screen (primary button)

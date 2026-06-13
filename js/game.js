@@ -66,6 +66,7 @@ export class Game {
     starter.name = 'Rusty Dagger'; starter.rarity = 'common'; starter.rarityColor = '#b8b8c0'; starter.affix = null;
     this.player.equip.weapon = starter;
     this.floorNum = 0; this.loreIndex = 0; this.ngPlus = 0;
+    this.runStart = performance.now();
     this.descend(true);
     this.state = 'story';
     UI.dialog(OPENING, () => { this.beginFloor(); });
@@ -76,6 +77,7 @@ export class Game {
     this.player.hp = this.stats().maxHp;
     this.floorNum = 0; this.loreIndex = 0; this.ngPlus = (this.ngPlus || 0) + 1;
     this.seed = hashSeed(this.seed, this.ngPlus, 4040);
+    this.runStart = performance.now();
     this.descend(true);
     this.state = 'play';
     SFX.ngplus();
@@ -139,6 +141,7 @@ export class Game {
     }
     this.clampPlayerToFloor();
     this.save();
+    UI.transition();
     if (!silent) this.beginFloor();
   }
 
@@ -204,6 +207,7 @@ export class Game {
     this.player.x = (f.spawn.x + 0.5) * TILE; this.player.y = (f.spawn.y + 0.5) * TILE;
     this.player.hp = this.stats().maxHp;
     this.state = 'play';
+    UI.transition();
     UI.toast('A Sanctum — rest, trade, reforge', BIOMES.sanctum.tint);
     this.save();
   }
@@ -835,18 +839,24 @@ export class Game {
   }
 
   // ---------- state transitions ----------
+  runStats() {
+    const p = this.player;
+    const secs = Math.max(0, Math.floor((performance.now() - (this.runStart || performance.now())) / 1000));
+    const t = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+    return `Floor ${this.floorNum}/${TOTAL_FLOORS} · Lvl ${p.level} · 👑 ${p.shards}/${SHARDS_TOTAL} · ${p.kills} slain · ${p.gold}g · 📜 ${p.codex.length}/${LORE.length} · ⏱ ${t}`;
+  }
   die() {
     this.state = 'dead';
-    UI.overlay('YOU FELL', `${this.act.name} · Floor ${this.floorNum}/${TOTAL_FLOORS} · Level ${this.player.level} · ${this.player.shards}/${SHARDS_TOTAL} shards`, 'Try again', () => this.newGame());
+    UI.overlay('THE DARK TOOK YOU', this.runStats(), 'Try again', () => this.newGame());
     localStorage.removeItem('shardfall.save');
   }
   win() {
     this.state = 'win';
     localStorage.removeItem('shardfall.save');
     UI.dialog(EPILOGUE, () => {
-      const ng = this.ngPlus ? ` (NG+${this.ngPlus})` : '';
+      const ng = this.ngPlus ? ` · NG+${this.ngPlus}` : '';
       UI.winScreen(
-        `All five shards recovered at Level ${this.player.level}${ng}. ${this.player.codex.length}/${LORE.length} lore found.`,
+        `${this.runStats()}${ng}`,
         `New Game+${(this.ngPlus || 0) + 1}`, () => this.startNGPlus(),
         'Fresh start', () => this.newGame(),
       );
@@ -881,6 +891,7 @@ export class Game {
       const data = JSON.parse(localStorage.getItem('shardfall.save'));
       if (!data) return false;
       this.seed = data.seed; this.loreIndex = data.loreIndex || 0; this.ngPlus = data.ngPlus || 0;
+      this.runStart = performance.now();
       const d = data.player;
       this.player = {
         x: 0, y: 0, r: 5, facing: { x: 0, y: 1 },

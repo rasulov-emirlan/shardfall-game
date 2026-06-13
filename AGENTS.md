@@ -125,7 +125,10 @@ Static site. Options:
 - **This box (preview):** `docker compose up -d` → nginx behind Traefik at
   `shardfall.night.enkiduck.com`. `docker-compose.yml` mounts the source files
   read-only (no build step). `nginx.conf` sets `Cache-Control: no-store` so updates
-  show on refresh.
+  show on refresh. **Gotcha:** `index.html` and `styles.css` are *single-file* bind
+  mounts — editing them in place gives the file a new inode, so the container keeps
+  serving the old one. After editing those two, run `docker compose up -d
+  --force-recreate`. The `js/` mount is a directory, so JS edits are picked up live.
 - **Cloudflare Pages / any static host:** `npm run build` then deploy `dist/` (or the
   repo root). `dist/` is just a copy of `index.html` + `styles.css` + `js/`.
 

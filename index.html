@@ -15,7 +15,7 @@
   <!-- HUD -->
   <div id="hud">
     <div class="bars">
-      <div class="bar hp"><div id="hpFill" class="fill"></div><span id="hpText" class="bartext">60/60</span></div>
+      <div class="bar hp"><div id="hpChip" class="chip"></div><div id="hpFill" class="fill"></div><span id="hpText" class="bartext">60/60</span></div>
       <div class="bar xp"><div id="xpFill" class="fill"></div></div>
     </div>
     <div class="hud-right">
@@ -32,8 +32,11 @@
   <!-- Boss bar -->
   <div id="boss" class="hidden">
     <div id="bossName">Boss</div>
-    <div class="bar bosshp"><div id="bossFill" class="fill"></div></div>
+    <div class="bar bosshp"><div id="bossChip" class="chip"></div><div id="bossFill" class="fill"></div><span class="tick t33"></span><span class="tick t66"></span></div>
   </div>
+
+  <!-- floor transition fade -->
+  <div id="fade"></div>
 
   <!-- Touch controls -->
   <div id="controls">
