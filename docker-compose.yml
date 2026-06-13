@@ -1,0 +1,20 @@
+services:
+  shardfall:
+    image: nginx:alpine
+    restart: unless-stopped
+    # serve the source files directly (no build step needed)
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./styles.css:/usr/share/nginx/html/styles.css:ro
+      - ./js:/usr/share/nginx/html/js:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [web]
+    labels:
+      - traefik.enable=true
+      - "traefik.http.routers.shardfall.rule=Host(`shardfall.night.enkiduck.com`)"
+      - traefik.http.routers.shardfall.entrypoints=websecure
+      - traefik.http.routers.shardfall.tls.certresolver=le
+      - traefik.http.services.shardfall.loadbalancer.server.port=80
+networks:
+  web:
+    external: true
