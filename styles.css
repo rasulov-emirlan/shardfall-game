@@ -205,3 +205,69 @@ html, body { height: 100%; background: var(--ink); overflow: hidden; font-family
 @media (hover: hover) and (pointer: fine) {
   #joystick, .btn-cluster { opacity: .35; }
 }
+
+/* =========================================================
+   PIXEL THEME — bitmap fonts + square corners + beveled boxes
+   (PixelHead = Press Start 2P for headings/buttons/numbers,
+    PixelBody = VT323 for readable body text) ========================= */
+html, body { font-family: 'PixelBody', 'Courier New', monospace; -webkit-font-smoothing: none; }
+
+/* body text sizes bumped a touch for VT323 metrics */
+#dialogText { font-size: 16px; line-height: 1.5; }
+.item-stats, .item-stats .sline { font-size: 14px; }
+.item-meta { font-size: 12px; }
+.item-name { font-size: 15px; }
+.lore-body { font-size: 14px; }
+.totals { font-size: 15px; }
+.modal-sub, .loot-sub, .ov-card p { font-size: 15px; }
+.empty-note { font-size: 14px; }
+.tap-hint { font-size: 13px; }
+.up, .down, .same { font-size: 13px; }
+.buy-row .price { font-size: 17px; }
+.statusbar { font-size: 16px; }
+.pause-body .slider-row b { font-size: 16px; }
+
+/* headings / buttons / HUD numbers → Press Start 2P, sizes tuned down */
+.ov-card h1 { font-family: 'PixelHead'; font-size: 17px; letter-spacing: 1px; line-height: 1.35; text-shadow: 2px 2px 0 #000, 0 0 18px #6fe0ff44; }
+.pause-panel h2 { font-family: 'PixelHead'; font-size: 15px; letter-spacing: 1px; }
+.inv-head h2, .modal-head h2, .loot-panel h2 { font-family: 'PixelHead'; font-size: 11px; letter-spacing: 1px; }
+.inv-label { font-family: 'PixelHead'; font-size: 8px; letter-spacing: 1px; }
+#bossName { font-family: 'PixelHead'; font-size: 8px; letter-spacing: 1px; }
+#lvl, #shards, #gold { font-family: 'PixelHead'; font-size: 8px; }
+#floor { font-family: 'PixelHead'; font-size: 7px; line-height: 1.7; }
+.bartext { font-family: 'PixelHead'; font-size: 7px; }
+.dlg-title { font-family: 'PixelHead'; font-size: 12px; letter-spacing: 1px; line-height: 1.5; }
+.btn { font-family: 'PixelHead'; }
+.btn.big { font-size: 15px; } .btn.small { font-size: 10px; } .btn.dash { font-size: 13px; }
+.cons-btn .cct, .cons-btn .ckey { font-family: 'PixelHead'; }
+.cons-btn .cct { font-size: 9px; } .cons-btn .ckey { font-size: 7px; }
+.pause-actions button, .modal-btns button, .ov-btns button, .item-btns button,
+.buy-row button, .pause-body .toggle, #invClose, .pause-body .slider-row span {
+  font-family: 'PixelHead';
+}
+.pause-actions button { font-size: 11px; } .pause-body .toggle { font-size: 10px; }
+.pause-body .slider-row span { font-size: 9px; }
+.modal-btns button { font-size: 10px; } .ov-btns button { font-size: 10px; letter-spacing: 1px; }
+.item-btns button { font-size: 9px; } .buy-row button { font-size: 10px; }
+#invClose, .modal-head .gold { font-size: 10px; }
+
+/* square pixel corners */
+.bar, .item, .lore, .totals, .modal-panel, .inv-panel, .cons-btn, .invbtn, .mute, .topbtn,
+#minimap, .toast, #invClose, .pause-body .toggle, .pause-body .slider-row,
+.pause-actions button, .modal-btns button, .ov-btns button, .buy-row button, .item-btns button {
+  border-radius: 0 !important;
+}
+.bar { border-width: 2px; }
+
+/* chunky beveled (pixel 3D) buttons */
+.pause-actions button, .modal-btns button, .ov-btns button, .buy-row button, .item-btns button, .pause-body .toggle, #invClose {
+  border: 2px solid rgba(0,0,0,.4);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,.18), inset -2px -2px 0 rgba(0,0,0,.45);
+}
+.pause-actions button:active, .modal-btns button:active, .ov-btns button:active,
+.buy-row button:active, .item-btns button:active, .pause-body .toggle:active {
+  box-shadow: inset -2px -2px 0 rgba(255,255,255,.12), inset 2px 2px 0 rgba(0,0,0,.5);
+  transform: translateY(1px);
+}
+/* crisp panel borders */
+.modal-panel, .inv-panel { border-width: 3px; }

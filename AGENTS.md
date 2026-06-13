@@ -7,8 +7,15 @@ Guide for AI agents (and humans) modifying this codebase. Read this before editi
 
 - **Vanilla JS ES modules. No framework, no bundler, no build step, no asset files.**
   The browser loads `js/*.js` directly. Sprites are drawn from character grids;
-  sound is synthesized. Don't introduce a build tool or npm runtime deps without a
-  very good reason — the zero-dependency, single-static-folder property is the point.
+  sound is synthesized. The only embedded binaries are two pixel fonts (Press Start
+  2P + VT323), base64'd into `fonts.css` to keep the game self-contained. Don't
+  introduce a build tool or npm runtime deps without a very good reason — the
+  zero-dependency, single-static-folder property is the point.
+- **UI styling:** `styles.css` ends with a `PIXEL THEME` block — `PixelHead`
+  (Press Start 2P) for headings/buttons/HUD numbers, `PixelBody` (VT323) for body
+  text, square corners, beveled buttons. Press Start 2P renders ~2× visual size, so
+  use small px sizes for it. `fonts.css` must be linked before `styles.css` and is a
+  single-file Docker mount (see Deploy).
 - **It's TypeScript-free plain `.js`.** No type annotations, JSX, or `import type`.
 - **Always run the test before claiming done:** `npm test` (`node smoke.mjs`) spins up
   a static server + headless Chrome and drives a full playthrough with 31 assertions.

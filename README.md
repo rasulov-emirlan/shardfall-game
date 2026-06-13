@@ -9,9 +9,10 @@ drink again. 25 floors, 5 telegraphed boss fights, loot with rarities + affixes,
 status effects, consumables, a dash-based skill combat system, a between-acts hub
 (merchant + forge), and New Game+.
 
-**No frameworks, no build step, no asset files.** Every sprite is drawn pixel by
-pixel in code; every sound is synthesized with the Web Audio API. The whole game
-is plain HTML + CSS + ES-module JavaScript.
+**No frameworks, no build step, no external dependencies.** Every sprite is drawn
+pixel by pixel in code; every sound is synthesized with the Web Audio API; the UI
+uses two pixel fonts (Press Start 2P + VT323) embedded as base64 in `fonts.css`, so
+the whole game is fully self-contained — plain HTML + CSS + ES-module JavaScript.
 
 ![Shardfall](docs/screenshot.png)
 
