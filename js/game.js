@@ -247,7 +247,7 @@ export class Game {
 
     // --- timers / status / buffs ---
     p.atkCd -= dt; p.swing = Math.max(0, p.swing - dt); p.invuln = Math.max(0, p.invuln - dt);
-    p.dashCd = Math.max(0, p.dashCd - dt);
+    p.dashCd = Math.max(0, p.dashCd - dt); p.anim = (p.anim || 0) + dt;
     this.updateBuffs(dt);
     this.updateStatuses(p, dt, true);
     if (p.hp <= 0) { this.die(); return; }
@@ -276,6 +276,10 @@ export class Game {
     // --- attack / interact ---
     if (input.attack && p.atkCd <= 0 && !p.statuses.stun) this.playerAttack(st);
     if (input.interactPressed) this.tryInteract();
+    // gamepad-driven UI actions
+    if (input.usePressed && p.consumables[0]) this.useConsumable(p.consumables[0].key);
+    if (input.inventoryPressed) { this.state = 'inventory'; UI.openInventory(); }
+    if (input.pausePressed) this.togglePause();
     clearPressed();
 
     // --- enemies ---
@@ -582,7 +586,7 @@ export class Game {
     e.flash = Math.max(0, e.flash - dt);
     this.updateStatuses(e, dt, false);
     if (e.hp <= 0) return; // DoT finished it
-    e.cd -= dt; e.wob += dt * 6;
+    e.cd -= dt; e.wob += dt * 6; e.anim = (e.anim || 0) + dt;
     const p = this.player;
     const dx = p.x - e.x, dy = p.y - e.y, dist = Math.hypot(dx, dy) || 1;
     const ux = dx / dist, uy = dy / dist;
@@ -811,7 +815,11 @@ export class Game {
   }
 
   // ---------- physics ----------
-  moveEntity(ent, dx, dy) { this.axisMove(ent, dx, 0); this.axisMove(ent, 0, dy); }
+  moveEntity(ent, dx, dy) {
+    const ox = ent.x, oy = ent.y;
+    this.axisMove(ent, dx, 0); this.axisMove(ent, 0, dy);
+    ent.movedDist = Math.hypot(ent.x - ox, ent.y - oy);
+  }
   axisMove(ent, dx, dy) {
     const r = ent.r;
     let nx = ent.x + dx, ny = ent.y + dy;
@@ -1084,7 +1092,10 @@ export class Game {
       ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 4 + f * 26, 0, 6.28); ctx.stroke();
       ctx.globalAlpha = 1; ctx.lineWidth = 1;
     }
-    drawSprite(ctx, s, e.x - w / 2, e.y - h / 2, scale, false, tint);
+    const moving = (e.movedDist || 0) > 0.04;
+    const ph = e.anim || 0;
+    const bob = moving ? -Math.abs(Math.sin(ph * (e.isBoss ? 7 : 11))) * (e.isBoss ? 2.6 : 2.1) : Math.sin(ph * 2.6) * 0.7;
+    drawSprite(ctx, s, e.x - w / 2, e.y - h / 2 + bob, scale, false, tint);
     if (e.isBoss) {
       ctx.globalAlpha = 0.12 + (e.phase - 1) * 0.06; ctx.fillStyle = '#ff3a6a';
       ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 6, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1;
@@ -1112,7 +1123,9 @@ export class Game {
     // status tint while burning/poisoned/chilled
     const stt = p.statuses;
     const tint = stt.burn ? '#ff8a2a' : stt.poison ? '#9affb0' : stt.chill ? '#6fd0e0' : null;
-    if (!blink) drawSprite(ctx, SPRITES.hero, p.x - 6, p.y - 7, 1, flip, tint && Math.floor(p.x + p.y) % 3 === 0 ? tint : null);
+    const moving = (p.movedDist || 0) > 0.04;
+    const bob = moving ? -Math.abs(Math.sin((p.anim || 0) * 12)) * 2 : Math.sin((p.anim || 0) * 2.6) * 0.6;
+    if (!blink) drawSprite(ctx, SPRITES.hero, p.x - 6, p.y - 7 + bob, 1, flip, tint && Math.floor(p.x + p.y) % 3 === 0 ? tint : null);
     if (p.buffs.rage) { ctx.globalAlpha = 0.4; ctx.fillStyle = '#ff5a3a'; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1; }
     if (p.buffs.stoneskin) { ctx.globalAlpha = 0.5; ctx.strokeStyle = '#9aa0b8'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; ctx.lineWidth = 1; }
     // facing indicator — small chevron showing attack direction (aim aid)

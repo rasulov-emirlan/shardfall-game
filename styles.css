@@ -50,6 +50,10 @@ html, body { height: 100%; background: var(--ink); overflow: hidden; font-family
 .pause-panel { width: 100%; max-width: 320px; text-align: center; }
 .pause-panel h2 { color: var(--cyan); font-size: 24px; letter-spacing: 4px; margin-bottom: 16px; }
 .pause-body { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.pause-body .slider-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 7px; border: 1px solid var(--line); background: #16122a; font-size: 13px; }
+.pause-body .slider-row span { color: #cfe; white-space: nowrap; }
+.pause-body .slider-row b { color: var(--cyan); width: 28px; text-align: right; }
+.pause-body .slider-row input[type=range] { flex: 1; accent-color: #6fe0ff; height: 4px; }
 .pause-body .toggle { padding: 11px; border-radius: 7px; font-size: 14px; font-weight: bold; border: 1px solid var(--line); }
 .pause-body .toggle.on { background: #1d3a2a; color: #6fe08a; border-color: #2f6a48; }
 .pause-body .toggle.off { background: #2a2440; color: #8a84a8; }

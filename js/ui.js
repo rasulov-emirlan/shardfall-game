@@ -1,7 +1,7 @@
 // DOM UI layer: HUD, dialog, inventory, boss bar, overlays, toasts.
 import { statLines, itemScore, affixLabel, CONSUMABLES } from './items.js';
 import { TOTAL_FLOORS, SHARDS_TOTAL } from './content.js';
-import { toggleMute, isMuted, resumeAudio } from './audio.js';
+import { toggleMute, isMuted, resumeAudio, setVolume, getVolume } from './audio.js';
 
 let game = null;
 let dialogCb = null;
@@ -203,7 +203,12 @@ function renderPause(g) {
     btn.onclick = () => { fn(); renderPause(g); };
     return btn;
   };
-  b.appendChild(mk('Sound', !isMuted(), () => { toggleMute(); $('mute').textContent = isMuted() ? '🔇' : '🔊'; }));
+  // volume slider
+  const vr = document.createElement('div'); vr.className = 'slider-row';
+  vr.innerHTML = `<span>🔊 Volume</span><input type="range" min="0" max="100" value="${Math.round(getVolume() * 100)}"><b>${Math.round(getVolume() * 100)}</b>`;
+  const inp = vr.querySelector('input'), val = vr.querySelector('b');
+  inp.addEventListener('input', () => { resumeAudio(); setVolume(inp.value / 100); val.textContent = inp.value; $('mute').textContent = isMuted() ? '🔇' : '🔊'; });
+  b.appendChild(vr);
   b.appendChild(mk('Screen shake', g.shakeOn, () => g.setShake(!g.shakeOn)));
   b.appendChild(mk('Haptics', g.hapticsOn, () => g.setHaptics(!g.hapticsOn)));
 }

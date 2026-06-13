@@ -41,6 +41,8 @@ checks.inPlay = await page.evaluate(() => window.__g.state === 'play');
 
 // Combat + movement burst
 for (let i = 0; i < 4; i++) { await page.keyboard.down('d'); await wait(120); await page.keyboard.press('j'); await page.keyboard.up('d'); }
+// Sprite animation: anim clock advances + per-frame movement tracked
+checks.anim = await page.evaluate(() => (window.__g.player.anim || 0) > 0 && 'movedDist' in window.__g.player);
 
 // Shrine -> codex grows
 const shrine = await page.evaluate(async () => {
@@ -135,9 +137,10 @@ checks.pause = await (async () => {
   const before = await page.evaluate(() => window.__g.shakeOn);
   await page.click('#pauseBody .toggle:nth-child(2)'); await wait(90);
   const toggled = await page.evaluate((b) => window.__g.shakeOn !== b, before);
+  const hasSlider = await page.evaluate(() => !!document.querySelector('#pauseBody input[type=range]'));
   await page.click('#pauseResume'); await wait(120);
   const resumed = await page.evaluate(() => window.__g.state === 'play');
-  return open && toggled && resumed;
+  return open && toggled && resumed && hasSlider;
 })();
 
 // Boss reward flow on the first boss
