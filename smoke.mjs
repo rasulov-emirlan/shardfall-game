@@ -81,14 +81,14 @@ checks.dash = await page.evaluate(() => {
 checks.affixStatus = await page.evaluate(() => {
   const g = window.__g;
   g.player.equip.weapon.affix = { key: 'flaming', name: 'Flaming', dps: 12, dur: 3 };
-  const e = g.spawnEnemy('slime', g.player.x + 12, g.player.y, null);
+  const e = g.spawnEnemy('rat', g.player.x + 12, g.player.y, null);
   e.x = g.player.x + 12; e.y = g.player.y; g.player.facing = { x: 1, y: 0 };
   g.playerAttack(g.stats());
   return !!(e.statuses && e.statuses.burn);
 });
 // Status DoT actually damages over time
 checks.statusDoT = await page.evaluate(() => {
-  const g = window.__g; const e = g.spawnEnemy('skeleton', g.player.x + 40, g.player.y, null);
+  const g = window.__g; const e = g.spawnEnemy('bigrat', g.player.x + 40, g.player.y, null);
   e.hp = 999; g.applyStatus(e, 'poison', { dur: 5, dps: 20 });
   const before = e.hp;
   for (let i = 0; i < 60; i++) g.updateStatuses(e, 0.1, false);
@@ -126,6 +126,19 @@ checks.consBar = await page.evaluate(() => {
   g.update(0.016);
   return document.querySelectorAll('#consumables .cons-btn').length >= 1;
 });
+
+// Pause menu opens, toggles a setting, and resumes
+checks.pause = await (async () => {
+  await page.evaluate(() => { window.__g.state = 'play'; window.__g.togglePause(); });
+  await wait(120);
+  const open = await visible('pause');
+  const before = await page.evaluate(() => window.__g.shakeOn);
+  await page.click('#pauseBody .toggle:nth-child(2)'); await wait(90);
+  const toggled = await page.evaluate((b) => window.__g.shakeOn !== b, before);
+  await page.click('#pauseResume'); await wait(120);
+  const resumed = await page.evaluate(() => window.__g.state === 'play');
+  return open && toggled && resumed;
+})();
 
 // Boss reward flow on the first boss
 const reward = await page.evaluate(async () => {

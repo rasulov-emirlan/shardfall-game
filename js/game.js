@@ -25,7 +25,11 @@ export class Game {
     this.projectiles = [];
     this.drops = [];
     this.enemies = [];
-    this.biome = BIOMES.crypt;
+    this.biome = BIOMES.drains;
+    this.hitstop = 0;
+    this._hpRatio = 1;
+    this.shakeOn = localStorage.getItem('shardfall.shake') !== '0';
+    this.hapticsOn = localStorage.getItem('shardfall.haptics') !== '0';
     this.resize();
     window.addEventListener('resize', () => this.resize());
     initInput(canvas);
@@ -147,6 +151,14 @@ export class Game {
     } else {
       UI.toast(this.isBoss ? `${this.act.name} — DANGER` : `Floor ${this.floorNum}/${TOTAL_FLOORS}`, this.isBoss ? '#ff5a6a' : this.biome.tint);
     }
+    // one-time control tips on the very first floor of a fresh save
+    if (this.floorNum === 1 && localStorage.getItem('shardfall.tips') !== '1') {
+      localStorage.setItem('shardfall.tips', '1');
+      setTimeout(() => UI.toast('Move: stick / WASD', '#cfe'), 1600);
+      setTimeout(() => UI.toast('Strike: A / J', '#cfe'), 3400);
+      setTimeout(() => UI.toast('Dash: ⟫ / Shift — invincible mid-roll, use it to dodge!', '#bfe8ff'), 5200);
+      setTimeout(() => UI.toast('Items: tap the pouch or press 1–9', '#cfe'), 7200);
+    }
   }
 
   spawnEnemy(type, x, y, rng, elite = false) {
@@ -177,7 +189,7 @@ export class Game {
       cd: 2, special: 3, phase: 1, flash: 0, kb: { x: 0, y: 0 }, wob: 0, t: 0,
     };
     this.enemies.push(b); this.boss = b; this.bossSpawned = true;
-    SFX.boss();
+    SFX.boss(); this.vibrate([50, 40, 90]);
     UI.setBoss(b);
   }
 
@@ -201,6 +213,7 @@ export class Game {
     if (this.state !== 'play') return;
     const p = this.player, st = this.stats();
     if (p.hp > st.maxHp) p.hp = st.maxHp;
+    this._hpRatio = p.hp / st.maxHp;
 
     // boss trigger
     if (this.isBoss && !this.bossSpawned) {
@@ -356,12 +369,14 @@ export class Game {
   damageEnemy(e, dmg, crit, st) {
     e.hp -= dmg; e.flash = 0.12;
     this.floater(e.x, e.y - e.r, `${dmg}`, crit ? '#ffd24a' : '#ffffff', crit);
+    if (crit) this.hitstop = Math.max(this.hitstop, 0.045);
     if (e.hp <= 0) this.killEnemy(e, st);
   }
 
   killEnemy(e, st) {
     if (e._dyingHandled) return;
     e._dyingHandled = true; e.hp = 0;
+    this.hitstop = Math.max(this.hitstop, e.isBoss ? 0.14 : 0.05);
     const p = this.player; p.kills++;
     const col = e.isBoss ? '#c98fff' : e.elite ? '#ffd24a' : '#9a3b5a';
     for (let i = 0; i < (e.isBoss ? 16 : 8); i++) this.particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 110, vy: (Math.random() - 0.5) * 110, life: 0.5, color: col, size: 2 });
@@ -489,7 +504,7 @@ export class Game {
       p.base.maxHp += 10; p.base.atk += 2; p.base.def += 1;
       p.hp = this.stats().maxHp;
       this.floater(p.x, p.y - 14, 'LEVEL UP!', '#5fd16b', true);
-      this.shake = 6; SFX.level();
+      this.shake = 6; SFX.level(); this.vibrate([15, 30, 15]);
     }
   }
 
@@ -627,7 +642,7 @@ export class Game {
     } else if (b.pattern === 'brood') {
       if (this.enemies.length < 10) {
         const rng = makeRNG(hashSeed(this.seed, Math.round(b.t * 60), 13));
-        for (let i = 0; i < 2 + b.phase; i++) this.spawnEnemy(rng.pick(['spider', 'bat', 'spitter']), b.x + rng.float(-30, 30), b.y + rng.float(-30, 30), rng);
+        for (let i = 0; i < 2 + b.phase; i++) this.spawnEnemy(rng.pick(['rat', 'roach', 'rat']), b.x + rng.float(-30, 30), b.y + rng.float(-30, 30), rng);
       }
       for (let k = -1; k <= 1; k++) { const a = ang + k * 0.35; this.bossBullet(b, Math.cos(a), Math.sin(a), 90, b.atk * 0.5); }
     } else if (b.pattern === 'tide') {
@@ -642,7 +657,7 @@ export class Game {
       for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2 + off; this.bossBullet(b, Math.cos(a), Math.sin(a), 80, b.atk * 0.5); }
       if (this.enemies.length < 7 && b.phase >= 2) {
         const rng = makeRNG(hashSeed(this.seed, Math.round(b.t * 70), 27));
-        for (let i = 0; i < b.phase; i++) this.spawnEnemy('cultist', b.x + rng.float(-34, 34), b.y + rng.float(-34, 34), rng);
+        for (let i = 0; i < b.phase; i++) this.spawnEnemy('spittermut', b.x + rng.float(-34, 34), b.y + rng.float(-34, 34), rng);
       }
       this.shake = 7;
     } else { // king
@@ -652,16 +667,16 @@ export class Game {
       const n = 14 + b.phase * 3;
       for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + b.t; this.bossBullet(b, Math.cos(a), Math.sin(a), 75, b.atk * 0.55); }
       if (b.phase >= 3 && this.enemies.length < 6) {
-        for (let i = 0; i < 2; i++) this.spawnEnemy('wraith', b.x + rng.float(-30, 30), b.y + rng.float(-30, 30), rng);
+        for (let i = 0; i < 2; i++) this.spawnEnemy('ghoul', b.x + rng.float(-30, 30), b.y + rng.float(-30, 30), rng);
       }
       this.shake = 10;
     }
   }
 
   enemyShoot(e, ux, uy) {
-    const col = e.type === 'cultist' ? '#ff7a4a' : e.type === 'spitter' ? '#9affb0' : e.type === 'archer' ? '#e8d0a0' : '#c98fff';
-    const spd = e.type === 'archer' ? 150 : 110;
-    const statusType = e.type === 'spitter' ? 'poison' : e.type === 'cultist' ? 'burn' : null;
+    const col = e.type === 'plaguerat' ? '#9aff8a' : e.type === 'spittermut' ? '#b6ff2a' : e.type === 'scavenger' ? '#d8c0a0' : '#c9ff6a';
+    const spd = e.type === 'scavenger' ? 150 : 110;
+    const statusType = (e.type === 'plaguerat' || e.type === 'spittermut') ? 'poison' : null;
     SFX.shoot();
     this.projectiles.push({ x: e.x, y: e.y, vx: ux * spd, vy: uy * spd, r: 3, dmg: e.atk, life: 3, fromPlayer: false, color: col, statusType });
   }
@@ -672,7 +687,7 @@ export class Game {
   hurtPlayer(raw, fromX, fromY, st) {
     const p = this.player;
     const dmg = Math.max(1, Math.round(raw) - Math.floor(st.def / 2));
-    p.hp -= dmg; p.invuln = 0.55; this.shake = 7; SFX.hurt();
+    p.hp -= dmg; p.invuln = 0.55; this.shake = 7; SFX.hurt(); this.vibrate(28);
     this.floater(p.x, p.y - 12, `${dmg}`, '#ff5a6a');
     const dx = p.x - fromX, dy = p.y - fromY, d = Math.hypot(dx, dy) || 1;
     p.kb.x += (dx / d) * 130; p.kb.y += (dy / d) * 130;
@@ -682,6 +697,7 @@ export class Game {
   }
 
   floater(x, y, text, color, big = false) { this.floaters.push({ x, y, text, color, life: 0.8, vy: -26, big }); }
+  vibrate(pattern) { if (this.hapticsOn && navigator.vibrate) { try { navigator.vibrate(pattern); } catch (_) {} } }
 
   // ---------- status effects ----------
   applyStatus(t, type, opts) {
@@ -838,6 +854,16 @@ export class Game {
   }
   closeInventory() { if (this.state === 'inventory') { this.state = 'play'; UI.closeInventory(); } }
 
+  // ---------- pause & settings ----------
+  togglePause() {
+    if (this.state === 'play') { this.state = 'paused'; UI.pauseMenu(this); }
+    else if (this.state === 'paused') this.resumeGame();
+  }
+  resumeGame() { if (this.state === 'paused') { this.state = 'play'; UI.closePause(); } }
+  setShake(on) { this.shakeOn = on; localStorage.setItem('shardfall.shake', on ? '1' : '0'); }
+  setHaptics(on) { this.hapticsOn = on; localStorage.setItem('shardfall.haptics', on ? '1' : '0'); if (on) this.vibrate(25); }
+  abandonRun() { UI.closePause(); this.state = 'title'; this.boss = null; UI.setBoss(null); localStorage.removeItem('shardfall.save'); UI.titleScreen(); }
+
   // ---------- save/load ----------
   save() {
     if (!this.player) return;
@@ -886,7 +912,7 @@ export class Game {
 
     ctx.save();
     let sx = 0, sy = 0;
-    if (this.shake > 0) { sx = (Math.random() - 0.5) * this.shake; sy = (Math.random() - 0.5) * this.shake; }
+    if (this.shake > 0 && this.shakeOn) { sx = (Math.random() - 0.5) * this.shake; sy = (Math.random() - 0.5) * this.shake; }
     ctx.translate(-Math.floor(this.cam.x) + sx, -Math.floor(this.cam.y) + sy);
 
     this.renderTiles();
@@ -968,6 +994,26 @@ export class Game {
         ctx.fillText(this.floorNum >= TOTAL_FLOORS ? 'descend' : 'descend ▼', VW / 2, VH - 16);
         ctx.textAlign = 'left';
       }
+    }
+
+    // off-screen boss arrow — points to the boss when it's out of view
+    if (this.boss && this.boss.hp > 0) {
+      const bx = this.boss.x - this.cam.x, by = this.boss.y - this.cam.y, m = 10;
+      if (bx < 0 || bx > VW || by < 0 || by > VH) {
+        const cx = VW / 2, cy = VH / 2, a = Math.atan2(by - cy, bx - cx);
+        const ex = Math.max(m, Math.min(VW - m, cx + Math.cos(a) * VW)), ey = Math.max(m, Math.min(VH - m, cy + Math.sin(a) * VH));
+        ctx.save(); ctx.translate(ex, ey); ctx.rotate(a);
+        ctx.fillStyle = '#ff3a6a'; ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, -4); ctx.lineTo(-4, 4); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // low-HP danger vignette
+    if (this._hpRatio < 0.3) {
+      const pulse = 0.25 + 0.18 * Math.abs(Math.sin(performance.now() / 220));
+      const g = ctx.createRadialGradient(VW / 2, VH / 2, VH * 0.3, VW / 2, VH / 2, VH * 0.75);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(200,20,40,${pulse * (1 - this._hpRatio / 0.3)})`);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
     }
   }
 
@@ -1058,6 +1104,12 @@ export class Game {
     if (!blink) drawSprite(ctx, SPRITES.hero, p.x - 6, p.y - 7, 1, flip, tint && Math.floor(p.x + p.y) % 3 === 0 ? tint : null);
     if (p.buffs.rage) { ctx.globalAlpha = 0.4; ctx.fillStyle = '#ff5a3a'; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1; }
     if (p.buffs.stoneskin) { ctx.globalAlpha = 0.5; ctx.strokeStyle = '#9aa0b8'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; ctx.lineWidth = 1; }
+    // facing indicator — small chevron showing attack direction (aim aid)
+    const fa = Math.atan2(p.facing.y, p.facing.x);
+    ctx.save(); ctx.translate(p.x + p.facing.x * 11, p.y + p.facing.y * 11); ctx.rotate(fa);
+    ctx.globalAlpha = 0.7; ctx.fillStyle = p.dashCd <= 0 ? '#bfe8ff' : '#7a8aa0';
+    ctx.beginPath(); ctx.moveTo(3, 0); ctx.lineTo(-2, -2.5); ctx.lineTo(-2, 2.5); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1; ctx.restore();
     if (p.swing > 0) {
       const a = Math.atan2(p.facing.y, p.facing.x);
       const t = 1 - p.swing / 0.16;
@@ -1103,18 +1155,19 @@ export class Game {
 
   renderTitle() {
     const ctx = this.ctx, VW = this.VW, VH = this.VH;
-    for (let i = 0; i < 40; i++) { const x = (i * 97) % VW, y = (i * 53) % VH; ctx.globalAlpha = 0.3 + ((i * 7) % 5) / 10; ctx.fillStyle = '#7fd0ff'; ctx.fillRect(x, y, 1, 1); }
+    for (let i = 0; i < 40; i++) { const x = (i * 97) % VW, y = (i * 53) % VH; ctx.globalAlpha = 0.2 + ((i * 7) % 5) / 12; ctx.fillStyle = '#8fb86a'; ctx.fillRect(x, y, 1, ((i * 13) % 4) + 1); }
     ctx.globalAlpha = 1;
-    drawSprite(ctx, SPRITES.shard, VW / 2 - 5, VH / 2 - 40, 2);
+    drawSprite(ctx, SPRITES.rat, VW / 2 - 12, VH / 2 - 44, 2);
     ctx.textAlign = 'center';
-    ctx.font = '16px monospace'; ctx.fillStyle = '#6fe0ff'; ctx.fillText('SHARDFALL', VW / 2, VH / 2 + 4);
-    ctx.font = '7px monospace'; ctx.fillStyle = '#9a93b8'; ctx.fillText('recover the five shards', VW / 2, VH / 2 + 18);
+    ctx.font = '16px monospace'; ctx.fillStyle = '#b6e02a'; ctx.fillText('SHARDFALL', VW / 2, VH / 2 + 4);
+    ctx.font = '7px monospace'; ctx.fillStyle = '#8a946a'; ctx.fillText('into the sewers · take five crowns', VW / 2, VH / 2 + 18);
     ctx.textAlign = 'left';
   }
 
   loop(ts) {
     const dt = Math.min(0.033, (ts - this.last) / 1000 || 0);
     this.last = ts;
+    if (this.hitstop > 0) { this.hitstop -= dt; this.render(); requestAnimationFrame((t) => this.loop(t)); return; }
     this.update(dt);
     this.render();
     requestAnimationFrame((t) => this.loop(t));

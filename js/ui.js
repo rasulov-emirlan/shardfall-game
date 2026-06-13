@@ -23,6 +23,9 @@ export function init(g) {
   $('shopReroll').addEventListener('click', () => shopState && shopState.onReroll());
   $('shopClose').addEventListener('click', () => shopState && shopState.onClose());
   $('forgeClose').addEventListener('click', () => forgeState && forgeState.onClose());
+  $('btnPause').addEventListener('click', () => game.togglePause());
+  $('pauseResume').addEventListener('click', () => game.resumeGame());
+  $('pauseAbandon').addEventListener('click', () => game.abandonRun());
   // first user gesture unlocks audio
   const unlock = () => { resumeAudio(); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
   window.addEventListener('pointerdown', unlock); window.addEventListener('keydown', unlock);
@@ -32,7 +35,8 @@ export function init(g) {
     if (!$('dialog').classList.contains('hidden')) { advanceDialog(); return; }
     if (!$('overlay').classList.contains('hidden')) { if (e.key === 'Enter' || e.key === ' ') overlayPrimary(); return; }
     if ((e.key === 'i' || e.key === 'I') && (game.state === 'play' || game.state === 'inventory')) { e.preventDefault(); toggleInventory(); }
-    else if (e.key === 'Escape' && game.state === 'inventory') game.closeInventory();
+    else if (e.key === 'Escape') { if (game.state === 'inventory') game.closeInventory(); else if (game.state === 'play' || game.state === 'paused') game.togglePause(); }
+    else if ((e.key === 'p' || e.key === 'P') && (game.state === 'play' || game.state === 'paused')) game.togglePause();
     else if (game.state === 'play' && e.key >= '1' && e.key <= '9') {
       const c = (game.player.consumables || [])[+e.key - 1];
       if (c) game.useConsumable(c.key);
@@ -52,7 +56,7 @@ export function setHUD(p, st, floorNum, act, ngPlus) {
   $('xpFill').style.width = `${(p.xp / p.xpToNext) * 100}%`;
   $('lvl').textContent = `LV ${p.level}${ngPlus ? ` ·NG+${ngPlus}` : ''}`;
   $('floor').textContent = `${act ? act.name + ' · ' : ''}${floorNum}/${TOTAL_FLOORS}`;
-  $('shards').textContent = '◆'.repeat(p.shards) + '◇'.repeat(SHARDS_TOTAL - p.shards);
+  $('shards').textContent = `👑 ${p.shards}/${SHARDS_TOTAL}`;
   $('gold').textContent = `${p.gold || 0}g`;
   renderConsumables(p);
   renderStatus(p);
@@ -163,6 +167,23 @@ export function lootChoice(items, cb) {
     list.appendChild(card);
   }
   $('lootchoice').classList.remove('hidden');
+}
+
+// ---------- pause menu (with settings) ----------
+export function pauseMenu(g) { renderPause(g); $('pause').classList.remove('hidden'); }
+export function closePause() { $('pause').classList.add('hidden'); }
+function renderPause(g) {
+  const b = $('pauseBody'); b.innerHTML = '';
+  const mk = (label, on, fn) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle ' + (on ? 'on' : 'off');
+    btn.textContent = `${label}: ${on ? 'ON' : 'OFF'}`;
+    btn.onclick = () => { fn(); renderPause(g); };
+    return btn;
+  };
+  b.appendChild(mk('Sound', !isMuted(), () => { toggleMute(); $('mute').textContent = isMuted() ? '🔇' : '🔊'; }));
+  b.appendChild(mk('Screen shake', g.shakeOn, () => g.setShake(!g.shakeOn)));
+  b.appendChild(mk('Haptics', g.hapticsOn, () => g.setHaptics(!g.hapticsOn)));
 }
 
 // ---------- shop (Sanctum merchant) ----------

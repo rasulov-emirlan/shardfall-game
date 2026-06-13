@@ -79,7 +79,18 @@ Almost everything is data in `js/content.js`:
 - Status DoT cadence + effects: `applyStatus()` / `updateStatuses()`.
 - Boss telegraph window: `updateBoss()` (`b.tele = 0.55`), fired in `fireBossSpecial()`.
 
+## Theme
+
+Current theme is **the city sewers**: rats & mutants, five sewer zones, the Rat King
+as final boss. Theme lives entirely in `js/content.js` (names, biomes, enemy/boss
+rosters, story, lore) + `js/sprites.js` (art). The engine is theme-agnostic — a full
+re-theme is a content+sprites edit, no engine changes.
+
 ## Sprites
+
+Many enemy/boss sprites are **re-skins** of shared grids via `recolor(baseSprite,
+palette)` (same char keys, new colors) — e.g. `mutant` is a recolored `brute`,
+`ratking` is bespoke. Author a new grid only when the silhouette must differ.
 
 `SPRITES.x = spr([...rows], palette)` where each row is a string, one char per pixel,
 `'.'`/`' '` = transparent, other chars map to colors via `palette`. **Keep all rows the

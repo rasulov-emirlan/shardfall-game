@@ -12,6 +12,11 @@ function spr(rows, palette) {
   return { rows, w: rows[0].length, h: rows.length, palette: { ...P, ...palette } };
 }
 
+// Re-skin an existing sprite grid with a new palette (same char keys).
+function recolor(base, palette) {
+  return { rows: base.rows, w: base.w, h: base.h, palette: { ...P, ...palette } };
+}
+
 export const SPRITES = {
   hero: spr([
     '....kkkk....',
@@ -264,6 +269,36 @@ export const SPRITES = {
     '............',
   ], { w: '#6a6f7e', k: '#1a1a22', f: '#ff8a2a' }),
 
+  rat: spr([
+    '....k..k....',
+    '...kwkkwk...',
+    '...kwwwwk...',
+    '..kwwwwwwk..',
+    '..kwrwwrwk..',
+    '..kwwppwwk..',
+    '..kwwwwwwk..',
+    '.kwwwwwwwwk.',
+    '.kwwwwwwwwk.',
+    '..kwwwwwwk..',
+    '...kk..kk...',
+    '.....ttttttt',
+  ], { w: '#9a948a', r: '#1a1620', p: '#e8909a', t: '#b89a86', k: '#15121a' }),
+
+  roach: spr([
+    '............',
+    '...t....t...',
+    '..t......t..',
+    '...kkkkkk...',
+    '..kbbwwbbk..',
+    '.kbbbwwbbbk.',
+    'kbbbbbbbbbbk',
+    'kbbbbbbbbbbk',
+    '.kbbbbbbbbk.',
+    '.k.kk.kk.k..',
+    'k..k....k..k',
+    '............',
+  ], { t: '#3a2a1a', b: '#5a3a20', w: '#8a5e30', k: '#15100a' }),
+
   shrine: spr([
     '....cc....',
     '...cwwc...',
@@ -375,6 +410,40 @@ export const BOSSES = {
     '......k..k......',
   ], { p: '#2a1a3a', w: '#6a4a8a', C: '#c98fff', r: '#ff3a6a', y: '#ffd24a', c: '#ffe98a', k: '#0a0610' }),
 };
+
+BOSSES.ratking = spr([ // The Rat King — crowned, two tails, final boss
+  '.....k....k.....',
+  '....kwk..kwk....',
+  '...kcyyyycck....',
+  '...kkwwwwwwkk...',
+  '..kwwwwwwwwwwk..',
+  '..kwwrwwwwrwwk..',
+  '..kwwwwwwwwwwk..',
+  '..kwwwwppwwwwk..',
+  '.kwwwwwwwwwwwwk.',
+  '.kwwwwwwwwwwwwk.',
+  '.kwwwwwwwwwwwwk.',
+  '..kwwwwwwwwwwk..',
+  '..kkwwwwwwwwkk..',
+  '...kk.kkkk.kk...',
+  'tttt........tttt',
+  '.ttt........ttt.',
+], { w: '#8a847a', r: '#ff3a3a', c: '#ffd24a', y: '#ffe98a', p: '#e8909a', t: '#b89a86', k: '#14101a' });
+
+// ----- sewer re-skins of existing grids (rats, mutants, themed bosses) -----
+SPRITES.bigrat    = recolor(SPRITES.rat,      { w: '#6a625a', r: '#ff5a5a', p: '#c97a8a', t: '#7a6a5a', k: '#100d14' });
+SPRITES.plaguerat = recolor(SPRITES.rat,      { w: '#7a9a5a', r: '#ffd24a', p: '#c9ff8a', t: '#5a7a3a', k: '#16200c' });
+SPRITES.sludge    = recolor(SPRITES.slime,    { g: '#5a6a2a', h: '#8aaa3a', w: '#d8ffa0', k: '#1a200c' });
+SPRITES.mutant    = recolor(SPRITES.brute,    { w: '#6a8a4a', f: '#22301a', b: '#46662a', k: '#101808' });
+SPRITES.spittermut = recolor(SPRITES.spitter, { g: '#3a6a2a', h: '#7aca4a', Y: '#ffd24a', w: '#eaffc0', a: '#b6ff8a', k: '#0c1808' });
+SPRITES.ghoul     = recolor(SPRITES.wraith,   { w: '#8aaa7a', r: '#d8ffb0', k: '#101808' });
+SPRITES.scavenger = recolor(SPRITES.archer,   { w: '#9a8a6a', c: '#6a4a2a', k: '#1a1410' });
+SPRITES.armoredmut = recolor(SPRITES.knight,  { C: '#7a8a5a', S: '#48583a', r: '#ff6a4a', k: '#101808' });
+
+BOSSES.gutter_matron = recolor(BOSSES.broodmother, { w: '#7a6a5a', G: '#8a7a4a', r: '#ff5a3a', k: '#160f0a' });
+BOSSES.bloatfiend    = recolor(BOSSES.tidewrought, { w: '#5a7a4a', W: '#8aba6a', r: '#ffd24a', k: '#0a1808' });
+BOSSES.sludge_abom   = recolor(BOSSES.ashenchoir,  { p: '#324518', f: '#8aff4a', y: '#d8ff8a', w: '#eaffc0', r: '#9aff3a', c: '#b6ff5a', k: '#0a1404' });
+BOSSES.plaguefather  = recolor(BOSSES.warden,      { w: '#7a8a5a', r: '#ff5a3a', k: '#0a1206' });
 
 // Draw a sprite grid. flipX mirrors horizontally. tint overrides every visible px.
 export function drawSprite(ctx, sprite, x, y, scale = 1, flipX = false, tint = null) {

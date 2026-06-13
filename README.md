@@ -1,9 +1,13 @@
 # Shardfall
 
 A top-down **pixel dungeon-crawler RPG** that runs entirely in the browser.
-Story-driven descent through 5 acts and 25 floors, 5 telegraphed boss fights,
-loot with rarities + affixes, status effects, consumables, a dash-based combat
-system, a between-acts hub (merchant + forge), and New Game+.
+
+You're a **sewerjack**: the city's taps run brown and the fever wards are full,
+because something has taken over the drains. Descend five sewer zones, fight
+**rats and mutants**, take five crowns, and end the **Rat King** so the city can
+drink again. 25 floors, 5 telegraphed boss fights, loot with rarities + affixes,
+status effects, consumables, a dash-based skill combat system, a between-acts hub
+(merchant + forge), and New Game+.
 
 **No frameworks, no build step, no asset files.** Every sprite is drawn pixel by
 pixel in code; every sound is synthesized with the Web Audio API. The whole game
@@ -60,14 +64,17 @@ attacks (which are all telegraphed with a warning ring) are dodged on timing.
 
 ## Features
 
-- **5 acts / 25 floors**, each a distinct biome (palette + enemy roster), procedurally generated.
-- **5 bosses** with unique, telegraphed attack patterns and HP-based aggression phases.
+- **5 sewer zones / 25 floors** — Storm Drains → Overflow Cisterns → Sludge Works → Plague Warrens → the King's Throne — each a distinct biome (palette + enemy roster), procedurally generated.
+- **Rats & mutants** — rats, roaches, big rats, plague rats, sludge, mutants, ghouls, scavengers, armored mutants, plus elites.
+- **5 bosses** with unique, telegraphed attack patterns and HP phases, ending with the **Rat King**.
+- **Skill combat** — a **dash with i-frames** is the core mechanic; every boss special is **telegraphed** with a warning ring so attacks are dodged on timing, not luck.
 - **Status effects** — burn, poison (stacks), chill (slow), stun — on enemies, bosses, and the player.
 - **Loot** — 5 rarities, 3 gear slots (weapon/armor/ring) with rolled stats, plus **weapon affixes** (Flaming, Venomous, Frost, Shocking, Cleaving, Heavy, Vampiric) that change how you fight.
 - **Consumables** — potions, throwable bombs (fire/frost/venom AoE), and buff elixirs (rage, stoneskin).
 - **Sanctum hub** after each boss — full heal, a **merchant** (buy/reroll), and a **forge** (reforge gear with gold).
-- **Gold economy**, **explored-tile minimap**, **procedural sound** with mute, **localStorage autosave**, **New Game+** (keep your build, harder enemies).
-- **Story & Codex** — opening, per-act intros, boss dialogue, an epilogue, and 20 lore fragments found at shrines.
+- **Quality-of-life** — explored-tile minimap, off-screen boss arrow, low-HP danger vignette, hit-stop on crits/kills, facing indicator, mobile haptics, a **pause menu** with sound/screen-shake/haptics toggles, and first-run control tips.
+- **Gold economy**, **procedural sound** with mute, **localStorage autosave**, **New Game+** (keep your build, harder enemies).
+- **Story & Codex** — opening, per-zone intros, boss dialogue, an epilogue, and 20 sewer lore fragments found at shrines.
 
 ---
 
