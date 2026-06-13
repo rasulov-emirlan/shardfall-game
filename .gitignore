@@ -1,0 +1,11 @@
+node_modules/
+dist/
+# build output: dist/ is a generated copy of the static files (see "npm run build")
+
+# scratch test artifacts (root-level screenshots from smoke/live checks)
+/*.png
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*

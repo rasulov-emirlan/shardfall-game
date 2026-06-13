@@ -1,0 +1,161 @@
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root { --ink: #0a0810; --panel: #14101f; --line: #2a2440; --cyan: #6fe0ff; --gold: #ffd24a; }
+html, body { height: 100%; background: var(--ink); overflow: hidden; font-family: 'Courier New', monospace; color: #e8e4f0; user-select: none; -webkit-user-select: none; }
+#app { position: fixed; inset: 0; }
+
+#game {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  background: #0a0810; touch-action: none;
+}
+
+/* ---------- HUD ---------- */
+#hud {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 8px 10px; pointer-events: none;
+  background: linear-gradient(#0a0810cc, #0a081000);
+}
+.bars { width: 46%; max-width: 240px; }
+.bar { position: relative; height: 14px; background: #1b1730; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.bar .fill { position: absolute; inset: 0; width: 100%; transition: width .12s linear; }
+.hp .fill { background: linear-gradient(#ff6a7a, #c93a4a); }
+.xp { height: 6px; }
+.xp .fill { background: linear-gradient(#7fd0ff, #4aa3ff); }
+.bartext { position: absolute; inset: 0; font-size: 9px; line-height: 14px; text-align: center; text-shadow: 0 1px 0 #000; font-weight: bold; }
+.hud-right { display: flex; flex-direction: column; align-items: flex-end; text-align: right; font-size: 11px; line-height: 1.5; text-shadow: 0 1px 0 #000; }
+#minimap { width: 58px; height: 58px; image-rendering: pixelated; background: #0a0810aa; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 3px; }
+#lvl { color: var(--gold); font-weight: bold; }
+#floor { color: #b9b2d8; }
+.shards { color: var(--cyan); letter-spacing: 1px; }
+.gold { color: var(--gold); font-weight: bold; }
+.mute { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #14101fcc; border: 1px solid var(--line); border-radius: 6px; font-size: 15px; pointer-events: auto; z-index: 26; }
+
+/* shop / forge modals */
+#shop, #forge { position: absolute; inset: 0; background: #05040af2; z-index: 45; display: flex; align-items: center; justify-content: center; padding: 12px; }
+.modal-panel { width: 100%; max-width: 460px; max-height: 92%; background: var(--panel); border: 2px solid var(--line); border-radius: 10px; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.modal-head h2 { color: var(--gold); font-size: 18px; letter-spacing: 2px; }
+.modal-head .gold { font-size: 15px; }
+.modal-sub { color: #b9b2d8; font-size: 11px; margin-bottom: 8px; }
+.modal-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.buy-row { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+.buy-row .price { color: var(--gold); font-weight: bold; font-size: 13px; flex: 1; }
+.buy-row button { background: #3a6ea5; color: #fff; border: none; border-radius: 5px; padding: 7px 16px; font-size: 13px; font-weight: bold; }
+.buy-row button:disabled { background: #2a2440; color: #6a6488; }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btns button { flex: 1; background: #2a2440; color: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 11px; font-size: 14px; font-weight: bold; }
+.modal-btns button.primary { background: linear-gradient(#3a6ea5, #2a4e80); border-color: #5a8ec5; }
+
+/* ---------- Boss bar ---------- */
+#boss { position: absolute; top: 54px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 360px; text-align: center; pointer-events: none; }
+#bossName { font-size: 11px; color: #ff7a8a; text-shadow: 0 1px 0 #000; margin-bottom: 2px; letter-spacing: 1px; }
+.bosshp { height: 10px; }
+.bosshp .fill { background: linear-gradient(#ff5a6a, #7a1a2a); }
+
+/* ---------- Touch controls ---------- */
+#controls { position: absolute; inset: 0; pointer-events: none; }
+#joystick {
+  position: absolute; left: 18px; bottom: 24px; width: 110px; height: 110px;
+  border-radius: 50%; background: #ffffff0e; border: 2px solid #ffffff22;
+  pointer-events: auto; touch-action: none;
+}
+#knob { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: #ffffff33; border: 2px solid #ffffff55; }
+.btn-cluster { position: absolute; right: 22px; bottom: 30px; width: 130px; height: 110px; pointer-events: none; }
+.btn {
+  position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: bold; color: #fff; pointer-events: auto; touch-action: none; user-select: none;
+  border: 2px solid #ffffff44; text-shadow: 0 1px 0 #0008;
+}
+.btn.big { width: 76px; height: 76px; right: 0; bottom: 0; background: #b5364caa; font-size: 22px; }
+.btn.small { width: 48px; height: 48px; right: 78px; bottom: 8px; background: #3a6ea5aa; font-size: 16px; }
+.btn.dash { width: 52px; height: 52px; right: 60px; bottom: 66px; background: #5a8ec5aa; font-size: 22px; }
+.btn.pressed { transform: scale(0.92); filter: brightness(1.4); }
+
+/* consumable quick-bar */
+.consumables { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); display: flex; gap: 6px; pointer-events: none; z-index: 22; }
+.cons-btn { position: relative; width: 42px; height: 42px; background: #14101fdd; border: 2px solid #888; border-radius: 8px; pointer-events: auto; display: flex; align-items: center; justify-content: center; }
+.cons-btn .cic { font-size: 19px; }
+.cons-btn .cct { position: absolute; right: 2px; bottom: 0; font-size: 11px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px #000; }
+.cons-btn .ckey { position: absolute; left: 2px; top: 0; font-size: 8px; color: #8a84a8; }
+
+/* status / buff indicators */
+.statusbar { position: absolute; left: 10px; top: 44px; display: flex; gap: 6px; font-size: 12px; font-weight: bold; text-shadow: 0 1px 0 #000; pointer-events: none; z-index: 22; }
+.invbtn {
+  position: absolute; right: 14px; top: 64px; width: 40px; height: 40px; border-radius: 8px;
+  background: #14101fcc; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
+  font-size: 20px; pointer-events: auto;
+}
+
+/* ---------- Dialog ---------- */
+#dialog {
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 100%; max-width: 560px; padding: 18px 22px 26px;
+  background: linear-gradient(#0a0810ee, #14101fee); border-top: 2px solid var(--cyan);
+  z-index: 30;
+}
+#dialogText { font-size: 13px; line-height: 1.7; text-align: center; }
+.dlg-title { color: var(--cyan); font-size: 17px; font-weight: bold; letter-spacing: 2px; margin-bottom: 6px; }
+.tap-hint { text-align: center; color: #7a73a0; font-size: 11px; margin-top: 12px; animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { opacity: .4; } }
+
+/* ---------- Inventory ---------- */
+#inventory { position: absolute; inset: 0; background: #05040acc; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 12px; }
+.inv-panel { width: 100%; max-width: 480px; max-height: 92%; background: var(--panel); border: 2px solid var(--line); border-radius: 10px; padding: 14px; overflow-y: auto; }
+.inv-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.inv-head h2 { color: var(--cyan); font-size: 18px; letter-spacing: 2px; }
+#invClose { background: #2a2440; color: #fff; border: 1px solid var(--line); width: 30px; height: 30px; border-radius: 6px; font-size: 15px; }
+.totals { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; background: #0e0b1c; border: 1px solid var(--line); border-radius: 6px; padding: 8px; margin-bottom: 10px; }
+.totals span { color: #d8d2f0; }
+.inv-label { font-size: 11px; color: #7a73a0; text-transform: uppercase; letter-spacing: 1px; margin: 8px 0 4px; }
+.equipped { display: flex; flex-direction: column; gap: 6px; }
+.equipped .item-stats { display: inline; }
+.backpack { display: flex; flex-direction: column; gap: 6px; }
+.item { background: #0e0b1c; border: 1px solid var(--line); border-left-width: 3px; border-radius: 6px; padding: 7px 9px; font-size: 12px; }
+.item.empty { opacity: .5; }
+.item.equipped { background: #16122a; }
+.item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.item-name { font-weight: bold; font-size: 12px; }
+.item-meta { color: #7a73a0; font-size: 10px; text-transform: capitalize; }
+.item-stats { color: #cfe; font-size: 11px; margin-top: 3px; }
+.item-btns { display: flex; gap: 6px; margin-top: 7px; }
+.item-btns button { flex: 1; background: #3a6ea5; color: #fff; border: none; border-radius: 5px; padding: 6px; font-size: 12px; font-weight: bold; }
+.item-btns .trash { flex: 0 0 36px; background: #5a2a3a; }
+.up { color: #5fd16b; font-size: 10px; } .down { color: #ff6a7a; font-size: 10px; } .same { color: #7a73a0; }
+.empty-note { color: #7a73a0; font-size: 12px; padding: 12px; text-align: center; }
+.codex { display: flex; flex-direction: column; gap: 6px; }
+.lore { background: #0e0b1c; border: 1px solid var(--line); border-left: 3px solid var(--cyan); border-radius: 6px; padding: 7px 9px; }
+.lore-title { color: var(--cyan); font-size: 12px; font-weight: bold; margin-bottom: 3px; }
+.lore-body { color: #b9b2d8; font-size: 11px; line-height: 1.5; }
+
+/* Boss reward chooser */
+#lootchoice { position: absolute; inset: 0; background: #05040af2; z-index: 55; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.loot-panel { width: 100%; max-width: 460px; text-align: center; }
+.loot-panel h2 { color: var(--gold); font-size: 20px; letter-spacing: 2px; margin-bottom: 4px; }
+.loot-sub { color: #b9b2d8; font-size: 12px; margin-bottom: 14px; }
+.loot-list { display: flex; flex-direction: column; gap: 10px; }
+.loot-card { cursor: pointer; transition: transform .1s, box-shadow .1s; padding: 11px 13px; }
+.loot-card:hover, .loot-card:active { transform: scale(1.02); box-shadow: 0 0 14px #ffffff22; }
+.loot-card .item-name { font-size: 14px; }
+.loot-card .item-stats { font-size: 13px; }
+
+/* ---------- Overlay ---------- */
+#overlay { position: absolute; inset: 0; background: #05040af2; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.ov-card { text-align: center; max-width: 420px; }
+.ov-card h1 { color: var(--cyan); font-size: 34px; letter-spacing: 5px; margin-bottom: 14px; text-shadow: 0 0 18px #6fe0ff66; }
+.ov-card p { color: #b9b2d8; font-size: 13px; line-height: 1.7; margin-bottom: 22px; }
+.ov-btns { display: flex; gap: 12px; justify-content: center; }
+.ov-btns button { background: linear-gradient(#3a6ea5, #2a4e80); color: #fff; border: 1px solid #5a8ec5; border-radius: 8px; padding: 12px 22px; font-size: 15px; font-weight: bold; letter-spacing: 1px; }
+#ovBtn2 { background: linear-gradient(#2a2440, #1b1730); border-color: var(--line); }
+
+/* ---------- Toasts ---------- */
+#toasts { position: absolute; top: 84px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 5px; align-items: center; pointer-events: none; z-index: 25; width: 100%; }
+.toast { background: #0a0810dd; border: 1px solid #fff; border-radius: 5px; padding: 5px 12px; font-size: 12px; font-weight: bold; opacity: 0; transform: translateY(-8px); transition: all .25s; text-shadow: 0 1px 0 #000; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.hidden { display: none !important; }
+
+/* hide touch controls on devices without touch (keyboard players) */
+@media (hover: hover) and (pointer: fine) {
+  #joystick, .btn-cluster { opacity: .35; }
+}
