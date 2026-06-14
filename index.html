@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#0a0810" />
 <title>Shardfall</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>✦</text></svg>" />
+<link rel="stylesheet" href="fonts.css" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -15,7 +16,7 @@
   <!-- HUD -->
   <div id="hud">
     <div class="bars">
-      <div class="bar hp"><div id="hpFill" class="fill"></div><span id="hpText" class="bartext">60/60</span></div>
+      <div class="bar hp"><div id="hpChip" class="chip"></div><div id="hpFill" class="fill"></div><span id="hpText" class="bartext">60/60</span></div>
       <div class="bar xp"><div id="xpFill" class="fill"></div></div>
     </div>
     <div class="hud-right">
@@ -26,13 +27,17 @@
       <div id="gold" class="gold">0g</div>
     </div>
   </div>
+  <div id="btnPause" class="topbtn">⏸</div>
   <div id="mute" class="mute">🔊</div>
 
   <!-- Boss bar -->
   <div id="boss" class="hidden">
     <div id="bossName">Boss</div>
-    <div class="bar bosshp"><div id="bossFill" class="fill"></div></div>
+    <div class="bar bosshp"><div id="bossChip" class="chip"></div><div id="bossFill" class="fill"></div><span class="tick t33"></span><span class="tick t66"></span></div>
   </div>
+
+  <!-- floor transition fade -->
+  <div id="fade"></div>
 
   <!-- Touch controls -->
   <div id="controls">
@@ -95,6 +100,18 @@
       <h2>Spoils of the Fallen</h2>
       <p class="loot-sub">Choose one. Your wounds close as you take it.</p>
       <div id="lootList" class="loot-list"></div>
+    </div>
+  </div>
+
+  <!-- Pause menu -->
+  <div id="pause" class="hidden">
+    <div class="pause-panel">
+      <h2>PAUSED</h2>
+      <div id="pauseBody" class="pause-body"></div>
+      <div class="pause-actions">
+        <button id="pauseResume" class="primary">Resume</button>
+        <button id="pauseAbandon">Abandon run</button>
+      </div>
     </div>
   </div>
 

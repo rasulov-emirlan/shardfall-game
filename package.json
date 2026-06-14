@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "serve": "node serve.mjs",
-    "build": "rm -rf dist && mkdir -p dist/js && cp index.html styles.css dist/ && cp js/*.js dist/js/",
+    "build": "rm -rf dist && mkdir -p dist/js && cp index.html styles.css fonts.css dist/ && cp js/*.js dist/js/",
     "test": "node smoke.mjs",
     "deploy:docker": "docker compose up -d"
   },

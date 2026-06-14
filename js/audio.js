@@ -1,24 +1,33 @@
 // Procedural sound via Web Audio — no asset files. Tiny synth + named SFX.
-let ctx = null, master = null, muted = false;
+let ctx = null, master = null;
+let volume = 0.5, lastVol = 0.5;
 
 export function initAudio() {
+  const stored = parseFloat(localStorage.getItem('shardfall.vol'));
+  if (!isNaN(stored)) volume = stored;
+  if (volume > 0) lastVol = volume;
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = 0.35;
+    master.gain.value = volume;
     master.connect(ctx.destination);
   } catch (_) { ctx = null; }
-  muted = localStorage.getItem('shardfall.muted') === '1';
-  applyMute();
 }
 export function resumeAudio() { if (ctx && ctx.state === 'suspended') ctx.resume(); }
-export function isMuted() { return muted; }
-export function toggleMute() { muted = !muted; localStorage.setItem('shardfall.muted', muted ? '1' : '0'); applyMute(); return muted; }
-function applyMute() { if (master) master.gain.value = muted ? 0 : 0.35; }
+function apply() { if (master) master.gain.value = volume; }
+export function getVolume() { return volume; }
+export function setVolume(v) {
+  volume = Math.max(0, Math.min(1, v));
+  if (volume > 0) lastVol = volume;
+  localStorage.setItem('shardfall.vol', String(volume));
+  apply();
+}
+export function isMuted() { return volume <= 0; }
+export function toggleMute() { volume = volume > 0 ? 0 : lastVol; localStorage.setItem('shardfall.vol', String(volume)); apply(); return isMuted(); }
 
 function tone(freq, dur, type = 'square', vol = 0.3, slideTo = null) {
-  if (!ctx || muted) return;
+  if (!ctx || volume <= 0) return;
   const t = ctx.currentTime;
   const o = ctx.createOscillator(), g = ctx.createGain();
   o.type = type; o.frequency.setValueAtTime(freq, t);
@@ -27,7 +36,7 @@ function tone(freq, dur, type = 'square', vol = 0.3, slideTo = null) {
   o.connect(g); g.connect(master); o.start(t); o.stop(t + dur);
 }
 function noise(dur, vol = 0.3, filterFreq = 1000) {
-  if (!ctx || muted) return;
+  if (!ctx || volume <= 0) return;
   const t = ctx.currentTime;
   const n = ctx.createBufferSource();
   const buf = ctx.createBuffer(1, Math.max(1, ctx.sampleRate * dur), ctx.sampleRate);

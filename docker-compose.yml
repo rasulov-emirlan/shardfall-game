@@ -6,6 +6,7 @@ services:
     volumes:
       - ./index.html:/usr/share/nginx/html/index.html:ro
       - ./styles.css:/usr/share/nginx/html/styles.css:ro
+      - ./fonts.css:/usr/share/nginx/html/fonts.css:ro
       - ./js:/usr/share/nginx/html/js:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks: [web]

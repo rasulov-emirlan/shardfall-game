@@ -1,7 +1,7 @@
 // DOM UI layer: HUD, dialog, inventory, boss bar, overlays, toasts.
-import { statLines, itemScore } from './items.js';
+import { statLines, itemScore, affixLabel, CONSUMABLES } from './items.js';
 import { TOTAL_FLOORS, SHARDS_TOTAL } from './content.js';
-import { toggleMute, isMuted, resumeAudio } from './audio.js';
+import { toggleMute, isMuted, resumeAudio, setVolume, getVolume } from './audio.js';
 
 let game = null;
 let dialogCb = null;
@@ -23,6 +23,9 @@ export function init(g) {
   $('shopReroll').addEventListener('click', () => shopState && shopState.onReroll());
   $('shopClose').addEventListener('click', () => shopState && shopState.onClose());
   $('forgeClose').addEventListener('click', () => forgeState && forgeState.onClose());
+  $('btnPause').addEventListener('click', () => game.togglePause());
+  $('pauseResume').addEventListener('click', () => game.resumeGame());
+  $('pauseAbandon').addEventListener('click', () => game.abandonRun());
   // first user gesture unlocks audio
   const unlock = () => { resumeAudio(); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
   window.addEventListener('pointerdown', unlock); window.addEventListener('keydown', unlock);
@@ -32,7 +35,8 @@ export function init(g) {
     if (!$('dialog').classList.contains('hidden')) { advanceDialog(); return; }
     if (!$('overlay').classList.contains('hidden')) { if (e.key === 'Enter' || e.key === ' ') overlayPrimary(); return; }
     if ((e.key === 'i' || e.key === 'I') && (game.state === 'play' || game.state === 'inventory')) { e.preventDefault(); toggleInventory(); }
-    else if (e.key === 'Escape' && game.state === 'inventory') game.closeInventory();
+    else if (e.key === 'Escape') { if (game.state === 'inventory') game.closeInventory(); else if (game.state === 'play' || game.state === 'paused') game.togglePause(); }
+    else if ((e.key === 'p' || e.key === 'P') && (game.state === 'play' || game.state === 'paused')) game.togglePause();
     else if (game.state === 'play' && e.key >= '1' && e.key <= '9') {
       const c = (game.player.consumables || [])[+e.key - 1];
       if (c) game.useConsumable(c.key);
@@ -46,18 +50,36 @@ function toggleInventory() {
 }
 
 // ---------- HUD ----------
+let _prevHp = null, _prevShards = null, _prevLevel = null;
+const _restart = (el, cls) => { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 export function setHUD(p, st, floorNum, act, ngPlus) {
-  $('hpFill').style.width = `${Math.max(0, (p.hp / st.maxHp) * 100)}%`;
+  const hpPct = Math.max(0, (p.hp / st.maxHp) * 100);
+  $('hpFill').style.width = `${hpPct}%`;
+  $('hpChip').style.width = `${hpPct}%`;
   $('hpText').textContent = `${Math.max(0, Math.ceil(p.hp))}/${st.maxHp}`;
+  const hb = document.querySelector('.bar.hp');
+  if (hb) {
+    hb.classList.toggle('low', hpPct < 30);
+    if (_prevHp != null && p.hp > _prevHp + 0.5) _restart(hb, 'heal');
+  }
+  _prevHp = p.hp;
+
   $('xpFill').style.width = `${(p.xp / p.xpToNext) * 100}%`;
+  if (_prevLevel != null && p.level > _prevLevel) _restart(document.querySelector('.bar.xp'), 'gain');
+  _prevLevel = p.level;
+
   $('lvl').textContent = `LV ${p.level}${ngPlus ? ` ·NG+${ngPlus}` : ''}`;
   $('floor').textContent = `${act ? act.name + ' · ' : ''}${floorNum}/${TOTAL_FLOORS}`;
-  $('shards').textContent = '◆'.repeat(p.shards) + '◇'.repeat(SHARDS_TOTAL - p.shards);
+  const sh = $('shards'); sh.textContent = `👑 ${p.shards}/${SHARDS_TOTAL}`;
+  if (_prevShards != null && p.shards > _prevShards) _restart(sh, 'pop');
+  _prevShards = p.shards;
   $('gold').textContent = `${p.gold || 0}g`;
+
   renderConsumables(p);
   renderStatus(p);
-  const dash = $('btnDash'); if (dash) dash.style.opacity = (p.dashCd || 0) > 0 ? '0.4' : '1';
+  const dash = $('btnDash'); if (dash) dash.style.setProperty('--cd', Math.max(0, Math.min(1, (p.dashCd || 0) / 0.7)));
 }
+export function transition() { const f = $('fade'); if (f) _restart(f, 'flash'); }
 
 let lastConsSig = '';
 function renderConsumables(p) {
@@ -94,7 +116,11 @@ export function setBoss(b) {
 }
 export function tickBoss() {
   const el = $('boss'); const b = el._b;
-  if (b && !el.classList.contains('hidden')) $('bossFill').style.width = `${Math.max(0, (b.hp / b.maxHp) * 100)}%`;
+  if (b && !el.classList.contains('hidden')) {
+    const pct = `${Math.max(0, (b.hp / b.maxHp) * 100)}%`;
+    $('bossFill').style.width = pct;
+    $('bossChip').style.width = pct;
+  }
 }
 
 // ---------- dialog ----------
@@ -131,7 +157,7 @@ export function overlay(title, body, btnText, cb) {
 export function titleScreen() {
   overlayCb = () => game.newGame();
   $('ovTitle').textContent = 'SHARDFALL';
-  $('ovBody').textContent = 'Five shards, deep down. Move: stick/WASD · Strike: A/J · Dash (i-frames): ⟫/Shift · Interact: B/E · Items: tap the pouch or 1–9 · 🎒 gear & Codex.';
+  $('ovBody').textContent = 'Down into the sewers — five crowns, one Rat King. Move: stick/WASD · Strike: A/J · Dash (i-frames): ⟫/Shift · Interact: B/E · Items: pouch or 1–9 · 🎒 gear & Codex · ⏸/Esc pause.';
   const b = $('ovBtn'); b.textContent = 'New Game';
   const b2 = $('ovBtn2');
   if (game.constructor.hasSave()) {
@@ -144,8 +170,8 @@ export function titleScreen() {
 // win screen with two choices: New Game+ / fresh start
 export function winScreen(body, btn1, cb1, btn2, cb2) {
   overlayCb = cb1; overlayCb2 = cb2;
-  $('ovTitle').textContent = 'THE STAR REFORGED';
-  $('ovBody').textContent = `${body} Dawn returns to the surface.`;
+  $('ovTitle').textContent = 'THE WATER RUNS CLEAN';
+  $('ovBody').textContent = body;
   $('ovBtn').textContent = btn1;
   const b2 = $('ovBtn2'); b2.classList.remove('hidden'); b2.textContent = btn2;
   $('overlay').classList.remove('hidden');
@@ -163,6 +189,28 @@ export function lootChoice(items, cb) {
     list.appendChild(card);
   }
   $('lootchoice').classList.remove('hidden');
+}
+
+// ---------- pause menu (with settings) ----------
+export function pauseMenu(g) { renderPause(g); $('pause').classList.remove('hidden'); }
+export function closePause() { $('pause').classList.add('hidden'); }
+function renderPause(g) {
+  const b = $('pauseBody'); b.innerHTML = '';
+  const mk = (label, on, fn) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle ' + (on ? 'on' : 'off');
+    btn.textContent = `${label}: ${on ? 'ON' : 'OFF'}`;
+    btn.onclick = () => { fn(); renderPause(g); };
+    return btn;
+  };
+  // volume slider
+  const vr = document.createElement('div'); vr.className = 'slider-row';
+  vr.innerHTML = `<span>🔊 Volume</span><input type="range" min="0" max="100" value="${Math.round(getVolume() * 100)}"><b>${Math.round(getVolume() * 100)}</b>`;
+  const inp = vr.querySelector('input'), val = vr.querySelector('b');
+  inp.addEventListener('input', () => { resumeAudio(); setVolume(inp.value / 100); val.textContent = inp.value; $('mute').textContent = isMuted() ? '🔇' : '🔊'; });
+  b.appendChild(vr);
+  b.appendChild(mk('Screen shake', g.shakeOn, () => g.setShake(!g.shakeOn)));
+  b.appendChild(mk('Haptics', g.hapticsOn, () => g.setHaptics(!g.hapticsOn)));
 }
 
 // ---------- shop (Sanctum merchant) ----------
@@ -225,11 +273,38 @@ export function openInventory() {
 }
 export function closeInventory() { $('inventory').classList.add('hidden'); }
 
+function consumableDesc(key) {
+  const d = CONSUMABLES[key]; if (!d) return '';
+  if (d.kind === 'heal') return `Restores ${Math.round(d.mag * 100)}% HP`;
+  if (d.kind === 'buff') return d.buff === 'rage' ? '+40% ATK & attack speed (9s)' : '−40% damage taken (9s)';
+  if (d.kind === 'bomb') return `Throw — explodes, applies ${d.status} in an area`;
+  return '';
+}
+function spd(item) { const v = (item.stats || {}).speed || 0; return item.slot === 'weapon' ? Math.round((v - 1) * 100) : Math.round(v * 100); }
+function statDeltaHTML(item, other) {
+  const a = item.stats || {}, b = (other && other.stats) || {}, out = [];
+  for (const [k, label, suf] of [['atk', 'ATK', ''], ['def', 'DEF', ''], ['maxHp', 'HP', ''], ['crit', 'Crit', '%'], ['lifesteal', 'Lifesteal', '%'], ['thorns', 'Thorns', '']]) {
+    const av = a[k] || 0, bv = b[k] || 0; if (!av && !bv) continue;
+    const diff = av - bv, cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'same';
+    out.push(`<span class="sline">+${av}${suf} ${label} ${other ? `<b class="${cls}">(${diff >= 0 ? '+' : ''}${diff})</b>` : ''}</span>`);
+  }
+  if (a.speed || b.speed) {
+    const av = spd(item), bv = other ? spd(other) : 0, diff = av - bv, cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'same';
+    out.push(`<span class="sline">+${av}% Spd ${other ? `<b class="${cls}">(${diff >= 0 ? '+' : ''}${diff})</b>` : ''}</span>`);
+  }
+  if (item.affix) out.push(`<span class="sline affix">${affixLabel(item.affix)}</span>`);
+  return out.join('') || '—';
+}
 function itemCard(item, equipped, compareTo) {
   const div = document.createElement('div');
   div.className = 'item';
+  if (item.slot === 'consumable') {
+    div.style.borderColor = item.color || '#888';
+    div.innerHTML = `<div class="item-head"><span class="item-name" style="color:${item.color}">${item.icon || ''} ${item.name}</span></div>
+      <div class="item-stats">${consumableDesc(item.key)}</div>`;
+    return div;
+  }
   div.style.borderColor = item.rarityColor;
-  const lines = statLines(item).join('  ');
   let delta = '';
   if (compareTo !== undefined) {
     const d = itemScore(item) - itemScore(compareTo);
@@ -237,10 +312,11 @@ function itemCard(item, equipped, compareTo) {
     else if (d < -0.5) delta = `<span class="down">▼ weaker</span>`;
     else delta = `<span class="same">≈</span>`;
   }
+  const body = compareTo !== undefined ? statDeltaHTML(item, compareTo) : statLines(item).map(l => `<span class="sline">${l}</span>`).join('');
   div.innerHTML = `
     <div class="item-head"><span class="item-name" style="color:${item.rarityColor}">${item.name}</span> ${delta}</div>
-    <div class="item-meta">${item.slot} · ilvl ${item.ilvl}</div>
-    <div class="item-stats">${lines || '—'}</div>`;
+    <div class="item-meta">${item.slot} · ilvl ${item.ilvl}${item.forged ? ` · +${item.forged}` : ''}</div>
+    <div class="item-stats">${body}</div>`;
   return div;
 }
 

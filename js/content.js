@@ -1,117 +1,115 @@
 // All game content: biomes, enemies, bosses, acts, story, lore. Data-driven so
 // floors/acts/text scale without touching engine code.
+// THEME: the city sewers, overrun by rats and mutants, ruled by the Rat King.
 import { SPRITES, BOSSES } from './sprites.js';
 
 // ---------- biome palettes (tile rendering per act) ----------
 export const BIOMES = {
-  crypt:   { floorA: '#241d3a', floorB: '#211a35', floorC: '#1e1832', wallFace: '#1b1730', wallTop: '#3a3160', wallEdge: '#0e0b1c', tint: '#6fe0ff' },
-  warrens: { floorA: '#1d2e1f', floorB: '#1a2a1c', floorC: '#182618', wallFace: '#16261a', wallTop: '#2f5236', wallEdge: '#0a160c', tint: '#7fe08a' },
-  vault:   { floorA: '#15283a', floorB: '#132435', floorC: '#112132', wallFace: '#102234', wallTop: '#2f5a72', wallEdge: '#081420', tint: '#6fd0e0' },
-  ashen:   { floorA: '#2e1a16', floorB: '#2a1714', floorC: '#261512', wallFace: '#241410', wallTop: '#6a2f1a', wallEdge: '#160806', tint: '#ff8a4a' },
-  throne:  { floorA: '#241a30', floorB: '#20162c', floorC: '#1c1428', wallFace: '#1a1226', wallTop: '#5a3f7a', wallEdge: '#0c0816', tint: '#c98fff' },
-  sanctum: { floorA: '#2e2820', floorB: '#2a241c', floorC: '#262018', wallFace: '#241e18', wallTop: '#6a5a3a', wallEdge: '#16120c', tint: '#ffd24a' },
+  drains:     { floorA: '#26281f', floorB: '#23251c', floorC: '#202219', wallFace: '#1e2018', wallTop: '#3e4630', wallEdge: '#10120a', tint: '#8fb86a' },
+  cisterns:   { floorA: '#172a2c', floorB: '#142628', floorC: '#122224', wallFace: '#102224', wallTop: '#2f5a5c', wallEdge: '#08161a', tint: '#5fd0c0' },
+  sludgeworks:{ floorA: '#2a2a14', floorB: '#262612', floorC: '#222210', wallFace: '#242410', wallTop: '#5a6a1a', wallEdge: '#121406', tint: '#b6e02a' },
+  warrens:    { floorA: '#2a1f1a', floorB: '#261c17', floorC: '#221814', wallFace: '#221813', wallTop: '#5a3a2a', wallEdge: '#140c08', tint: '#e0926a' },
+  throne:     { floorA: '#221a26', floorB: '#1e1622', floorC: '#1a141e', wallFace: '#1a1220', wallTop: '#4a3a5a', wallEdge: '#0c0814', tint: '#c9ff6a' },
+  sanctum:    { floorA: '#2e2820', floorB: '#2a241c', floorC: '#262018', wallFace: '#241e18', wallTop: '#6a5a3a', wallEdge: '#16120c', tint: '#ffd24a' },
 };
 
 // ---------- enemies ----------
 export const ENEMY_DEFS = {
-  slime:    { sprite: SPRITES.slime,    hp: 14, atk: 5,  def: 0, speed: 30, xp: 6,  r: 6, kind: 'melee'   },
-  bat:      { sprite: SPRITES.bat,      hp: 9,  atk: 4,  def: 0, speed: 58, xp: 5,  r: 5, kind: 'erratic' },
-  skeleton: { sprite: SPRITES.skeleton, hp: 24, atk: 9,  def: 3, speed: 40, xp: 11, r: 6, kind: 'melee'   },
-  mage:     { sprite: SPRITES.mage,     hp: 16, atk: 7,  def: 1, speed: 30, xp: 13, r: 6, kind: 'ranged'  },
-  spider:   { sprite: SPRITES.spider,   hp: 12, atk: 6,  def: 0, speed: 66, xp: 8,  r: 6, kind: 'erratic' },
-  spitter:  { sprite: SPRITES.spitter,  hp: 20, atk: 7,  def: 1, speed: 24, xp: 11, r: 6, kind: 'ranged'  },
-  drowned:  { sprite: SPRITES.drowned,  hp: 36, atk: 12, def: 2, speed: 24, xp: 15, r: 6, kind: 'melee'   },
-  brute:    { sprite: SPRITES.brute,    hp: 64, atk: 15, def: 5, speed: 28, xp: 24, r: 7, kind: 'melee'   },
-  cultist:  { sprite: SPRITES.cultist,  hp: 24, atk: 10, def: 2, speed: 30, xp: 17, r: 6, kind: 'ranged'  },
-  wraith:   { sprite: SPRITES.wraith,   hp: 20, atk: 11, def: 0, speed: 70, xp: 16, r: 6, kind: 'erratic' },
-  knight:   { sprite: SPRITES.knight,   hp: 78, atk: 16, def: 9, speed: 34, xp: 28, r: 7, kind: 'melee'   },
-  archer:   { sprite: SPRITES.archer,   hp: 22, atk: 10, def: 2, speed: 34, xp: 15, r: 6, kind: 'ranged'  },
+  rat:        { sprite: SPRITES.rat,        hp: 13, atk: 5,  def: 0, speed: 50, xp: 6,  r: 6, kind: 'melee'   },
+  roach:      { sprite: SPRITES.roach,      hp: 9,  atk: 4,  def: 0, speed: 60, xp: 5,  r: 5, kind: 'erratic' },
+  bigrat:     { sprite: SPRITES.bigrat,     hp: 26, atk: 9,  def: 3, speed: 42, xp: 11, r: 7, kind: 'melee'   },
+  plaguerat:  { sprite: SPRITES.plaguerat,  hp: 18, atk: 7,  def: 1, speed: 36, xp: 13, r: 6, kind: 'ranged'  },
+  sludge:     { sprite: SPRITES.sludge,     hp: 34, atk: 11, def: 2, speed: 22, xp: 14, r: 6, kind: 'melee'   },
+  mutant:     { sprite: SPRITES.mutant,     hp: 64, atk: 15, def: 5, speed: 28, xp: 24, r: 7, kind: 'melee'   },
+  spittermut: { sprite: SPRITES.spittermut, hp: 22, atk: 9,  def: 1, speed: 26, xp: 15, r: 6, kind: 'ranged'  },
+  ghoul:      { sprite: SPRITES.ghoul,      hp: 20, atk: 11, def: 0, speed: 70, xp: 16, r: 6, kind: 'erratic' },
+  scavenger:  { sprite: SPRITES.scavenger,  hp: 22, atk: 10, def: 2, speed: 34, xp: 15, r: 6, kind: 'ranged'  },
+  armoredmut: { sprite: SPRITES.armoredmut, hp: 80, atk: 16, def: 9, speed: 34, xp: 28, r: 7, kind: 'melee'   },
 };
 
 // ---------- bosses ----------
 export const BOSS_DEFS = {
-  warden: {
-    name: 'The Hollow Warden', sprite: BOSSES.warden, hp: 340, atk: 16, def: 6, speed: 42, xp: 130, r: 14,
-    pattern: 'ring',
-    intro: ['A rusted titan unfolds from the dark.', '"I have guarded the first shard since the fall.', 'Turn back, Wardenscar, while you are still warm."'],
-    slain: ['The Warden buckles. Its breastplate splits and', 'a shard tumbles out, humming with cold light.', 'One of five. The descent has only begun.'],
-  },
-  broodmother: {
-    name: 'The Brood Mother', sprite: BOSSES.broodmother, hp: 760, atk: 22, def: 9, speed: 30, xp: 280, r: 15,
+  gutter_matron: {
+    name: 'Gnashka, the Gutter Matron', sprite: BOSSES.gutter_matron, hp: 340, atk: 16, def: 6, speed: 42, xp: 130, r: 14,
     pattern: 'brood',
-    intro: ['The walls breathe. Ten thousand eyes open.', '"You took a shard from my warren, little warmth.', 'You will feed my children for the theft."'],
-    slain: ['Her chittering dies to silence. The second shard', 'cools in your palm, slick with her ichor.', 'Two of five. Something below is waiting.'],
+    intro: ['A bloated rat the size of a dog drags herself', 'from a nest of squirming pink young.', '"Fresh meat in MY drains? My babies are hungry."'],
+    slain: ['The Matron collapses and her brood scatters.', 'A bottlecap crown sits crooked on her brow —', 'you pry it loose. One crown of five.'],
   },
-  tidewrought: {
-    name: 'The Tidewrought', sprite: BOSSES.tidewrought, hp: 1260, atk: 27, def: 11, speed: 26, xp: 470, r: 15,
+  bloatfiend: {
+    name: 'The Bloatfiend', sprite: BOSSES.bloatfiend, hp: 760, atk: 22, def: 9, speed: 28, xp: 280, r: 15,
     pattern: 'tide',
-    intro: ['The flooded vault stirs. A drowned god rises,', 'shard-light pouring from its ribs like a lantern.', '"The deep keeps what it swallows. Even stars."'],
-    slain: ['The leviathan sinks back into still black water,', 'and the third shard floats up to meet your hand.', 'Three of five. You are far from any sky now.'],
+    intro: ['The cistern water bulges and stands UP —', 'a man-shape swollen with rot and runoff.', '"...glug... it took me too. it will take you."'],
+    slain: ['The Bloatfiend bursts and sloshes back to water.', 'Knotted in its gut: a second crown,', 'tin and filthy. Two of five.'],
   },
-  ashenchoir: {
-    name: 'The Ashen Choir', sprite: BOSSES.ashenchoir, hp: 1760, atk: 31, def: 13, speed: 30, xp: 720, r: 15,
+  sludge_abom: {
+    name: 'The Rendering', sprite: BOSSES.sludge_abom, hp: 1260, atk: 27, def: 11, speed: 24, xp: 470, r: 15,
     pattern: 'choir',
-    intro: ['A conclave fused into one burning shape turns', 'as one, and sings your name in a hundred voices.', '"We were pilgrims once. The King taught us fire.', 'Kneel, and the fourth shard is yours to bear."'],
-    slain: ['The Choir gutters out, voice by voice, until one', 'ember remains — the fourth shard, white-hot, then cold.', 'Four of five. Only the Throne lies beneath you.'],
+    intro: ['Every drum of chemical waste fed one thing.', 'It rises, hissing, a green that eats light.', '"WE ARE WHAT THE CITY POURED AWAY."'],
+    slain: ['The Rendering boils down to slag and steam.', 'A crown, half-dissolved, cools in the muck.', 'Three of five. The air burns less now.'],
   },
-  hollowking: {
-    name: 'The Hollow King', sprite: BOSSES.hollowking, hp: 2700, atk: 36, def: 16, speed: 50, xp: 1200, r: 15,
+  plaguefather: {
+    name: 'Skarn, the Plaguefather', sprite: BOSSES.plaguefather, hp: 1760, atk: 31, def: 13, speed: 30, xp: 720, r: 15,
+    pattern: 'ring',
+    intro: ['Armored in scrap and scab, the warren\'s warden', 'lifts a censer of rust-red spores and grins.', '"The King\'s gospel is sickness. Breathe deep, jack."'],
+    slain: ['Skarn falls, censer guttering out at last.', 'You take his crown of welded teeth.', 'Four of five. Only the Throne remains.'],
+  },
+  ratking: {
+    name: 'The Rat King', sprite: BOSSES.ratking, hp: 2700, atk: 36, def: 16, speed: 50, xp: 1200, r: 15,
     pattern: 'king',
-    intro: ['On a throne of fused shard-bone, a figure waits.', 'Its brand matches yours. It was a Wardenscar, once.', '"I gathered all five. I tried to reforge the star.', 'The star reforged ME. This is what it asks, kinling —', 'everything warm in you, for a little light. Come."'],
-    slain: ['The King unmakes — not in rage, but relief.', '"...thank you," it breathes, and is gone.', 'The five shards rise and circle, drawn together,', 'and the Lodestar remembers how to be whole.'],
+    intro: ['A hundred rats, tails knotted into one body,', 'wearing one true crown and one cold mind.', '"We were vermin. Now we are sovereign.', 'The city throws its filth down to us, jack,', 'and we have made a KINGDOM of it. Kneel."'],
+    slain: ['The knot unravels, rat by rat, until none remain', 'but a small bones thing and a crown too big for it.', 'Five crowns. Above, the taps will run clean by dawn.'],
   },
 };
 
 // ---------- acts (each: N normal floors, then 1 boss floor) ----------
 export const ACTS = [
   {
-    name: 'The Undercroft', biome: 'crypt', boss: 'warden', normalFloors: 4,
-    enemies: ['slime', 'bat', 'slime', 'skeleton'],
-    intro: ['ACT I — THE UNDERCROFT', 'You climb down into the bone-cellars beneath the world.',
-      'The Lodestar\'s warmth fades behind you, stair by stair.', 'Somewhere below, the first shard is caged.'],
+    name: 'The Storm Drains', biome: 'drains', boss: 'gutter_matron', normalFloors: 4,
+    enemies: ['rat', 'roach', 'rat', 'bigrat'],
+    intro: ['ACT I — THE STORM DRAINS', 'You drop through a manhole into the city\'s gutters.',
+      'The runoff stinks of more than rain down here.', 'Something has been breeding in the dark, and growing.'],
   },
   {
-    name: 'The Brood Warrens', biome: 'warrens', boss: 'broodmother', normalFloors: 4,
-    enemies: ['spider', 'bat', 'spitter', 'skeleton'],
-    intro: ['ACT II — THE BROOD WARRENS', 'The stone gives way to silk and chitin. The Warrens.',
-      'Things scuttle just past your light. They are not afraid.', 'They are hungry, and they are between you and the second shard.'],
+    name: 'The Overflow Cisterns', biome: 'cisterns', boss: 'bloatfiend', normalFloors: 4,
+    enemies: ['bigrat', 'roach', 'scavenger', 'sludge'],
+    intro: ['ACT II — THE OVERFLOW CISTERNS', 'Vast flooded tanks, black water to the knee.',
+      'Things float that should have sunk, and watch you.', 'The deeper you wade, the less of them is still human.'],
   },
   {
-    name: 'The Drowned Vault', biome: 'vault', boss: 'tidewrought', normalFloors: 4,
-    enemies: ['drowned', 'archer', 'brute', 'mage'],
-    intro: ['ACT III — THE DROWNED VAULT', 'Black water laps at flooded halls older than the surface.',
-      'The drowned do not rot here — the shard-light keeps them.', 'It keeps them, and it hates the living for being warm.'],
+    name: 'The Sludge Works', biome: 'sludgeworks', boss: 'sludge_abom', normalFloors: 4,
+    enemies: ['sludge', 'spittermut', 'mutant', 'plaguerat'],
+    intro: ['ACT III — THE SLUDGE WORKS', 'Old chemical outflows the city pretends it capped.',
+      'Everything here is melting, mutating, or both.', 'Whatever the factories buried, it woke up hungry.'],
   },
   {
-    name: 'The Ashen Deep', biome: 'ashen', boss: 'ashenchoir', normalFloors: 4,
-    enemies: ['cultist', 'wraith', 'brute', 'mage'],
-    intro: ['ACT IV — THE ASHEN DEEP', 'Heat now, where there should be only cold and depth.',
-      'Pilgrims came this far chasing the King\'s promise of fire.', 'They never left. They became the fire. They are still singing.'],
+    name: 'The Plague Warrens', biome: 'warrens', boss: 'plaguefather', normalFloors: 4,
+    enemies: ['plaguerat', 'ghoul', 'mutant', 'bigrat'],
+    intro: ['ACT IV — THE PLAGUE WARRENS', 'The tunnels turn to nest: chewed walls, bone, spore.',
+      'This is where the sickness above is brewed and blessed.', 'The rats here do not flee. They have a faith.'],
   },
   {
-    name: 'The Hollow Throne', biome: 'throne', boss: 'hollowking', normalFloors: 4,
-    enemies: ['knight', 'wraith', 'cultist', 'archer'],
-    intro: ['ACT V — THE HOLLOW THRONE', 'The deepest dark, and it is not dark at all —',
-      'it glows with stolen starlight, sourceless and sick.', 'The First Wardenscar sits at the bottom of the world.', 'You have come to take back what it took, or to join it.'],
+    name: 'The King\'s Throne', biome: 'throne', boss: 'ratking', normalFloors: 4,
+    enemies: ['armoredmut', 'ghoul', 'scavenger', 'mutant'],
+    intro: ['ACT V — THE KING\'S THRONE', 'The deepest vault, where every drain finally meets.',
+      'It glows a sick green and hums with a thousand squeaks.', 'The Rat King is down here, on a throne of garbage,', 'and it has been waiting a long time for someone like you.'],
   },
 ];
 
 // total floors and floor → act mapping
 export const FLOOR_PLAN = (() => {
-  const plan = []; // index 0 unused; plan[floorNum] = {actIndex, isBoss, biome, boss}
+  const plan = [];
   plan.push(null);
   ACTS.forEach((act, ai) => {
     for (let i = 0; i < act.normalFloors; i++) plan.push({ actIndex: ai, isBoss: false, biome: act.biome });
-    plan.push({ actIndex: ai, isBoss: true, biome: act.biome, boss: act.boss }); // boss floor
+    plan.push({ actIndex: ai, isBoss: true, biome: act.biome, boss: act.boss });
   });
   return plan;
 })();
 export const TOTAL_FLOORS = FLOOR_PLAN.length - 1;
-export const SHARDS_TOTAL = ACTS.length;
+export const SHARDS_TOTAL = ACTS.length; // crowns to collect
 
 export function floorInfo(n) { return FLOOR_PLAN[n] || FLOOR_PLAN[TOTAL_FLOORS]; }
 export function actOf(n) { return ACTS[floorInfo(n).actIndex]; }
-// is this the first floor of its act? (for act-intro dialog)
 export function isActStart(n) {
   const info = floorInfo(n); if (!info || info.isBoss) return false;
   const prev = FLOOR_PLAN[n - 1];
@@ -120,48 +118,48 @@ export function isActStart(n) {
 
 // ---------- opening / epilogue ----------
 export const OPENING = [
-  'SHARDFALL',
-  'The Lodestar — the star that burned at the heart of the',
-  'deep and lit the whole world from below — has shattered.',
-  'Its five shards fell further down, into the Underhold,',
-  'and woke things that should have slept forever.',
-  'Above, the light is going out, hour by hour.',
-  'You are a Wardenscar, oath-branded to the star.',
-  'Descend. Recover all five shards. Reforge the Lodestar —',
-  'before the dark below climbs up to meet the dark above.',
+  'SHARDFALL: THE SEWERS',
+  'The city\'s taps run brown. The fevered fill the wards.',
+  'It all flows up from below — from the sewers, where the',
+  'rats grew big and clever and the runoff grew teeth.',
+  'They say something rules the deep drains now: a Rat King,',
+  'a hundred vermin bound into one crowned mind, breeding',
+  'plague like a sacrament.',
+  'You are a sewerjack. You go down so the city can drink.',
+  'Take the five crowns. End the King. Make the water clean.',
 ];
 export const EPILOGUE = [
   'EPILOGUE',
-  'The reforged Lodestar sinks back to its old seat and',
-  'catches — a slow, certain dawn pushing up through stone.',
-  'You climb. The brand on your arm goes cold and quiet,',
-  'its oath kept. The King\'s last word follows you up:',
-  'a warning, and a thanks, from one who could not climb back.',
-  'You step out into morning. You are tired. You are warm.',
-  'You are, still, yourself. That was the whole victory.',
+  'You haul yourself up the last ladder into grey morning.',
+  'Behind you the drains are quiet — just water, moving water.',
+  'In a day the fever wards will empty. In a week the taps',
+  'will run clear and no one will know why, or thank you.',
+  'You smell like the underworld and your hands won\'t come clean.',
+  'You did not do it for thanks. You did it so they could drink.',
+  'Somewhere a faucet runs cold and clear. That\'s the whole of it.',
   '— THE END —',
 ];
 
 // ---------- lore fragments (found at shrines) ----------
 export const LORE = [
-  { title: 'Warden\'s Oath', lines: ['"I take the brand not for glory but for dawn.', 'I descend so others need not. I keep the warmth."', '— the Wardenscar oath, first line'] },
-  { title: 'On the Lodestar', lines: ['The star never hung in the sky. It burned below,', 'and the world was lit from its own deep heart.', 'We forgot that. We thought light fell from above.'] },
-  { title: 'The First to Fall', lines: ['One Wardenscar came before all the rest, they say,', 'and recovered every shard, and was never seen again.', 'We struck a statue for the hero. It is always cold.'] },
-  { title: 'Cellarer\'s Note', lines: ['"The bones down here won\'t stay buried. They sit up', 'when the shard-light flickers, like men remembering', 'they had somewhere to be. I have stopped digging."'] },
-  { title: 'The Hollowing', lines: ['A shard is not a lantern you carry. It is a mouth.', 'It gives light and takes warmth, slow, year by year,', 'until the bearer is all light and nothing else.'] },
-  { title: 'Brood-Speech', lines: ['The spiders do not hunt for hunger alone. They weave', 'the shard-song into their silk and listen to it.', 'Whatever it tells them, it tells them to multiply.'] },
-  { title: 'A Pilgrim\'s Letter', lines: ['"We go down to the Deep to be warmed by the King\'s fire.', 'He says cold is the only sin and he will burn it out of us.', 'If you read this, do not follow. The fire does not stop."'] },
-  { title: 'On the Drowned', lines: ['Water should rot a corpse. Here it preserves them,', 'shard-lit and patient, mistaking the living for thieves.', 'They are not wrong. We are all here to steal the light.'] },
-  { title: 'Warden\'s Oath, cont.', lines: ['"...and if I am hollowed, let another take the brand,', 'and let them put me down as I would a Warden lost.', 'No shard is worth a Warden who forgets the dawn."'] },
-  { title: 'The King\'s First Word', lines: ['Scratched into the throne-stair, in a Warden\'s hand:', '"It worked. The star is whole. Why am I still cold?', 'Why is it asking for more? I have nothing left to give—"'] },
-  { title: 'Counting the Shards', lines: ['Five fell. Five must return. Reforging needs them all —', 'four is a furnace with no fire, a lamp with no flame.', 'Stop at four and you have only fed the dark below.'] },
-  { title: 'The Tidewrought', lines: ['Before it drowned, it was the vault\'s last keeper,', 'who swallowed a shard to keep it from raiders.', 'The shard kept HIM. Now he keeps the whole black flood.'] },
-  { title: 'Choir Practice', lines: ['You can hear them three floors up if the stone is quiet:', 'a hundred pilgrims singing in one fused, burning throat.', 'They are not in pain. That is the most frightening part.'] },
-  { title: 'Why We Descend', lines: ['A child on the surface asked why the Wardens go down', 'and never come back up the same, or at all.', 'Her grandmother said: "So that you will see a morning."'] },
-  { title: 'The Brand', lines: ['The oath-brand is a sliver of the Lodestar set in skin.', 'It warms when the bearer keeps faith, cools when they fail,', 'and goes out entirely the moment they are hollowed through.'] },
-  { title: 'Warden\'s Oath, last line', lines: ['"I do not descend to become a legend in cold stone.', 'I descend to climb back out. Remember the climbing out.', 'That is the part the King forgot. Do not forget it."'] },
-  { title: 'On Reforging', lines: ['The star is not reforged by strength but by surrender —', 'you must give it the shards AND refuse to give it you.', 'Hold the line between. That line is the whole of the art.'] },
-  { title: 'Map Fragment', lines: ['Someone charted the descent before losing their nerve:', 'Undercroft, Warrens, Vault, Deep, and at the floor', 'of the world a single word, underlined twice: THRONE.'] },
-  { title: 'The Statue, Revisited', lines: ['The hero\'s statue on the surface — the First Wardenscar —', 'they carved it crowned. No Warden is ever crowned.', 'Someone, long ago, already knew what he had become.'] },
-  { title: 'Last Note Before the Throne', lines: ['"If you are reading this, you are nearly at the bottom.', 'He will sound reasonable. He will sound like you, tired.', 'Give the star the shards. Do not give it the rest. Climb."'] },
+  { title: 'Sewerjack\'s Creed', lines: ['"I go down so the city need not look down.', 'I keep the water moving and the dark in its place.', 'The job is never thanked and never finished."'] },
+  { title: 'Works Memo, Stained', lines: ['"Re: rodent activity in the eastern drains —', 'larger and bolder than reported. Recommend we stop', 'recommending and start sealing tunnels. — never sent"'] },
+  { title: 'On the Rat King', lines: ['When enough rats are trapped together in the filth,', 'their tails knot, and the knot does not die when they do.', 'Old jacks call it a Rat King. They say it can think.'] },
+  { title: 'A Mother\'s Note', lines: ['"My boy drank from the kitchen tap and now he burns.', 'The doctor says it\'s in the water. Where does water come', 'from? Down. It all comes from down there. God help us."'] },
+  { title: 'The Mutations', lines: ['It isn\'t just rats. The chemical outflows did the rest —', 'what the city poured away came back changed, and walking.', 'Some of them still have faces you might recognize.'] },
+  { title: 'Bloatfiend', lines: ['He was a cistern keeper, they think, who fell in and stayed.', 'The water preserved him and the water kept growing him.', 'Now he IS the cistern, and the cistern is angry.'] },
+  { title: 'Plague Gospel', lines: ['Scrawled on a warren wall in something brown:', '"SICKNESS IS THE KING\'S GIFT. ROT IS THE KING\'S CROWN.', 'WHAT FLOWS UP IS HIS WORD. DRINK AND BE FAITHFUL."'] },
+  { title: 'Sewerjack\'s Creed, cont.', lines: ['"...and if the dark takes me, do not come for the body.', 'Seal the tunnel and forget the name. A jack who is mourned', 'is a jack who slowed someone down. Keep the water moving."'] },
+  { title: 'Lost Crew', lines: ['Six jacks went down to map the new tunnels last spring.', 'One came back, raving about a crowned thing in the deep.', 'We pensioned him. We should have armed him.'] },
+  { title: 'The Rendering', lines: ['Every barrel the factories swore they\'d disposed of', 'went down a pipe and pooled in one forgotten sump.', 'It has been mixing for thirty years. It is awake now.'] },
+  { title: 'Counting Crowns', lines: ['The big ones wear crowns — bottlecaps, tin, welded teeth.', 'Aping the King, or anointed by him. Five hold the warren', 'together. Take all five and the whole nest comes apart.'] },
+  { title: 'Why the Rats Won', lines: ['We gave them everything: warmth, dark, endless food,', 'and a hundred years with no one watching the drains.', 'We did not lose the sewers. We abandoned them.'] },
+  { title: 'Skarn', lines: ['The Plaguefather was a sewerjack once, the oldest of us.', 'He went down to seal the warrens and came back preaching.', 'If you meet him, he will know your face. Do it anyway.'] },
+  { title: 'On Crowns and Kings', lines: ['A crown is just a thing a desperate creature picks up', 'to feel like more than vermin. The King wears a real one.', 'Nobody knows where a real crown came from, down here.'] },
+  { title: 'The Knot', lines: ['To kill a Rat King you cannot kill one rat. You must', 'unmake the knot — break it faster than it can re-tie.', 'Hit it where the many become one. Then keep hitting.'] },
+  { title: 'Last Map', lines: ['A jack\'s chart, water-warped: Drains, Cisterns, Works,', 'Warrens — and at the very bottom, circled hard enough', 'to tear the paper, two words: THE THRONE.'] },
+  { title: 'Sewerjack\'s Creed, last line', lines: ['"I do not go down to be a hero in a sealed tunnel.', 'I go down to climb back up and turn on a tap and drink.', 'Remember the climbing up. Remember the water."'] },
+  { title: 'Overheard in the Deep', lines: ['Three floors down, if the pipes go quiet, you can hear it:', 'a thousand rats squeaking in perfect, patient unison.', 'They are not hunting. They are praying. To something below.'] },
+  { title: 'The Clean Tap', lines: ['An old jack kept a tin cup hung by the entrance ladder.', '"For when you come back up," he\'d say. "First clean water', 'tastes like the whole reason." His cup is still there.'] },
+  { title: 'Before the Throne', lines: ['"If you\'re reading this you\'re nearly at the bottom.', 'The King will talk. It will make filth sound like a kingdom.', 'Take its crown. Climb out. Go drink. — a jack who didn\'t"'] },
 ];
